@@ -4,10 +4,18 @@ import { QuickAccess } from "./QuickAccess";
 import { GospelCard } from "./GospelCard";
 import { ProgramCard } from "./ProgramCard";
 import { BottomNav } from "./BottomNav";
+import { useEffect } from "react";
+import { testEvangelio } from "@/services/testEvangelio";
 
 // Proportions per spec (mobile):
 // header 8% · custodia 33% · radio 9% · accesos 20% · evangelio 15% · próximo 8% · menú 7%
-export const MobileHome = () => (
+export const MobileHome = () => {
+
+  useEffect(() => {
+    testEvangelio();
+  }, []);
+
+  return (
   <div className="relative min-h-screen bg-navy-deep text-foreground overflow-x-hidden">
     <main className="relative z-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
       {/* HEADER 8% */}
@@ -50,4 +58,5 @@ export const MobileHome = () => (
     {/* MENÚ INFERIOR 7% */}
     <BottomNav />
   </div>
-);
+  );
+};
