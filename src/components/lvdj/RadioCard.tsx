@@ -13,7 +13,7 @@ export const RadioCard = () => {
   const [status, setStatus] = useState<Status>("idle");
 
   const [nowPlaying, setNowPlaying] = useState(
-    "Conecta tu espíritu..."
+    "Radio Católica"
   );
 
   // Audio
@@ -92,8 +92,14 @@ export const RadioCard = () => {
 
   const isOn =
     status === "playing" || status === "connecting";
-
-  const isLong = nowPlaying.length > 25;
+  const cleanTitle = nowPlaying
+  .replace(/^\d+\.\s*/, "")
+  .replace(/^Track\s*\d+\s*-\s*/i, "")
+  .trim();
+  
+  const titleCase = cleanTitle
+  .toLowerCase()
+  .replace(/\b\w/g, (l) => l.toUpperCase());
 
   return (
     <button
@@ -111,20 +117,16 @@ export const RadioCard = () => {
       </span>
 
       <div className="flex-1 text-left min-w-0">
-        <div className="font-sans text-[18px] font-bold text-navy-deep leading-none">
+       <div className="font-sans text-[17px] font-extrabold text-navy-deep leading-none tracking-tight">
           {isOn ? "EN TRANSMISIÓN" : "ESCUCHAR EN VIVO"}
         </div>
-
-       <div className="mt-1">
-  <div className="text-[11px] uppercase tracking-[0.15em] text-navy-deep/60 font-semibold">
-    Ahora suena
-  </div>
-
-  <div className="text-sm font-bold text-navy-deep leading-tight mt-0.5 line-clamp-2">
-    {nowPlaying}
-  </div>
+        
+        <div className="mt-1">
+        <div className="text-[15px] font-bold text-navy-deep/90 leading-tight line-clamp-2">
+        {titleCase}
         </div>
-
+        </div>
+        
         {status === "error" && (
           <div className="text-xs text-red-700 mt-1">
             No se pudo conectar a la transmisión
