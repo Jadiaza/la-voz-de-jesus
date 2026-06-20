@@ -1,154 +1,220 @@
-import { Bell, Radio as RadioIcon, User2, ChevronDown, Clock, Play, Church } from "lucide-react";
+import {
+  Bell,
+  CalendarDays,
+  ChevronDown,
+  ChevronRight,
+  Church,
+  Clock,
+  Play,
+  Radio as RadioIcon,
+  User2,
+} from "lucide-react";
 import { Logo } from "./Logo";
 import { RadioCard } from "./RadioCard";
 import { QuickAccess } from "./QuickAccess";
 import { GospelCard } from "./GospelCard";
 import { ProgramCard } from "./ProgramCard";
 import { Footer } from "./Footer";
-import desktopBg from "@/assets/desktop-bg.png.asset.json";
+import monstranceHero from "@/assets/monstrance-hero.jpg";
 
-const links = ["Inicio", "Radio", "Capilla", "Evangelio", "Comunidad", "Programación", "Contacto"];
+const links = [
+  "Inicio",
+  "Radio",
+  "Capilla",
+  "Evangelio",
+  "Comunidad",
+  "Programacion",
+  "Contacto",
+];
 
 const schedule = [
-  { time: "05:00", title: "Liturgia de las Horas", host: "Comunidad Monástica", live: false },
-  { time: "06:30", title: "Santa Misa Matutina", host: "Padre Antonio Rivera", live: true },
-  { time: "10:00", title: "Caminos de Fe", host: "Diácono Luis Pérez", live: false },
-  { time: "12:00", title: "Ángelus y Reflexión", host: "Padre Joaquín", live: false },
-  { time: "15:00", title: "Hora de la Misericordia", host: "Adoradores", live: false },
-  { time: "18:00", title: "Santo Rosario", host: "Familias en Oración", live: false },
-  { time: "20:00", title: "Voces de Esperanza", host: "Padre Mateo Suárez", live: false },
+  { time: "06:00 AM", title: "Santo Rosario", live: false },
+  { time: "07:00 AM", title: "Laudes", live: false },
+  { time: "10:00 AM", title: "Santa Misa", live: true },
+  { time: "03:00 PM", title: "Hora de la Misericordia", live: false },
+  { time: "07:00 PM", title: "Adoracion Eucaristica", live: false },
 ];
 
 export const DesktopHome = () => (
   <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-    {/* Top nav */}
-    <header className="fixed top-0 inset-x-0 z-50">
-      <div className="glass border-b border-[hsl(var(--gold)/0.15)]">
-        <div className="container flex items-center justify-between h-[88px] gap-6">
-          <Logo size="md" />
-          <nav className="hidden lg:flex items-center gap-1">
-            {links.map((l, i) => (
-              <a
-                key={l}
-                href="#"
-                className={`relative px-4 py-2 text-sm font-medium transition-colors ${
-                  i === 0 ? "text-gold" : "text-foreground/70 hover:text-gold"
-                }`}
-              >
-                {l}
-                {i === 0 && (
-                  <span className="absolute left-1/2 -translate-x-1/2 -bottom-0.5 h-px w-8 bg-gradient-gold" />
-                )}
-              </a>
-            ))}
-          </nav>
-          <div className="flex items-center gap-3">
-            <button className="relative h-10 w-10 rounded-full glass gold-border flex items-center justify-center hover:text-gold transition">
-              <Bell className="h-4 w-4" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-gold ring-2 ring-background" />
-            </button>
-            <button className="hidden md:inline-flex items-center gap-2 gold-border rounded-full px-4 h-10 text-xs font-semibold uppercase tracking-wider text-gold hover:bg-gold/10 transition">
-              <RadioIcon className="h-4 w-4" /> En Vivo
-            </button>
-            <button className="hidden md:inline-flex items-center gap-2 glass rounded-full pl-1 pr-3 h-10 hover:border-[hsl(var(--gold)/0.5)] transition">
-              <span className="h-8 w-8 rounded-full bg-gradient-gold flex items-center justify-center">
-                <User2 className="h-4 w-4 text-navy-deep" />
-              </span>
-              <span className="text-xs font-medium">Mi cuenta</span>
-              <ChevronDown className="h-3 w-3 text-foreground/60" />
-            </button>
-          </div>
+    <header className="relative z-30 border-b border-[hsl(var(--gold)/0.18)] bg-navy-deep/95">
+      <div className="mx-auto flex h-24 max-w-[1760px] items-center justify-between px-8 2xl:px-12">
+        <Logo size="lg" />
+
+        <nav className="hidden lg:flex items-center gap-2">
+          {links.map((link, index) => (
+            <a
+              key={link}
+              href="#"
+              className={`relative px-3 py-2 text-sm font-semibold transition-colors xl:px-4 ${
+                index === 0
+                  ? "text-gold"
+                  : "text-foreground/72 hover:text-gold"
+              }`}
+            >
+              {link}
+              {index === 0 && (
+                <span className="absolute left-1/2 top-full h-px w-10 -translate-x-1/2 bg-gradient-gold" />
+              )}
+            </a>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-3">
+          <button className="relative hidden h-11 w-11 items-center justify-center rounded-full gold-border text-gold transition hover:bg-gold/10 md:flex">
+            <Bell className="h-5 w-5" />
+            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-gold ring-2 ring-navy-deep" />
+          </button>
+          <button className="inline-flex h-11 items-center gap-2 rounded-full gold-border px-4 text-xs font-bold uppercase tracking-wider text-gold transition hover:bg-gold/10">
+            <RadioIcon className="h-4 w-4" />
+            En Vivo
+          </button>
+          <button className="hidden h-11 items-center gap-2 rounded-full gold-border bg-navy-deep/40 pl-1.5 pr-3 text-sm font-semibold text-foreground/85 transition hover:bg-gold/10 xl:inline-flex">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-gold text-navy-deep">
+              <User2 className="h-4 w-4" />
+            </span>
+            Mi cuenta
+            <ChevronDown className="h-3.5 w-3.5 text-foreground/55" />
+          </button>
         </div>
       </div>
     </header>
 
-    <main className="pt-[88px]">
-      {/* Hero band with desktop background */}
+    <main>
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <img src={desktopBg.url} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-background" />
+        <div className="absolute inset-0">
+          <img
+            src={monstranceHero}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/35 to-background/10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/15 via-transparent to-background" />
         </div>
 
-        <div className="container py-20 lg:py-28 grid lg:grid-cols-2 gap-10 items-center min-h-[520px]">
-          <div className="max-w-xl">
-            <h1 className="font-display text-5xl lg:text-6xl leading-[1.05]">
-              Adora al Santísimo
+        <div className="relative z-10 mx-auto flex min-h-[520px] max-w-[1760px] items-center px-8 py-14 2xl:px-12">
+          <div className="max-w-[560px]">
+            <h1 className="font-display text-6xl font-semibold leading-[1.02] xl:text-7xl 2xl:text-8xl">
+              Adora al Santisimo
               <br />
-              <span className="gold-text italic">las 24 horas</span>
+              <span className="gold-text">las 24 horas</span>
             </h1>
+
             <div className="my-6 flex items-center gap-3">
-              <span className="h-px w-10 bg-gradient-gold" />
-              <span className="text-gold text-lg">✦</span>
-              <span className="h-px w-10 bg-gradient-gold" />
+              <span className="h-px w-24 bg-gradient-gold" />
+              <Church className="h-5 w-5 text-gold" />
+              <span className="h-px w-24 bg-gradient-gold" />
             </div>
-            <p className="text-foreground/75 text-base max-w-md leading-relaxed">
-              En nuestra Capilla Virtual puedes orar, adorar y estar en la presencia real de Jesús.
+
+            <p className="max-w-lg text-lg leading-relaxed text-foreground/78">
+              En nuestra Capilla Virtual puedes orar, adorar y estar en la
+              presencia real de Jesus.
             </p>
-            <button className="mt-8 inline-flex items-center gap-3 bg-gradient-gold text-navy-deep font-semibold px-6 py-3.5 rounded-full shadow-gold hover:scale-[1.02] transition">
+
+            <button className="mt-7 inline-flex items-center gap-3 rounded-xl bg-gradient-gold px-7 py-4 text-sm font-bold uppercase tracking-wide text-navy-deep shadow-gold transition hover:scale-[1.01]">
               <Church className="h-5 w-5" />
-              ENTRAR A LA CAPILLA VIRTUAL
+              Entrar a la Capilla Virtual
             </button>
           </div>
-          <div />
         </div>
       </section>
 
-      {/* Row: Radio · Evangelio · Próximo */}
-      <section className="container -mt-10 grid md:grid-cols-3 gap-5 relative z-10">
-        <div className="md:col-span-1"><RadioCard /></div>
-        <div className="md:col-span-1"><GospelCard /></div>
-        <div className="md:col-span-1"><ProgramCard /></div>
-      </section>
-
-      {/* Accesos rápidos */}
-      <section className="container mt-12">
-        <QuickAccess />
-      </section>
-
-      {/* Schedule */}
-      <section className="container py-16">
-        <div className="flex items-end justify-between flex-wrap gap-4 mb-6">
-          <div>
-            <div className="text-xs uppercase tracking-[0.3em] text-gold mb-2">En el aire</div>
-            <h2 className="font-display text-4xl">Programación de Hoy</h2>
+      <section className="relative z-10 mx-auto max-w-[1760px] px-8 pt-0 2xl:px-12">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+          <div className="grid grid-cols-1 gap-4 xl:col-span-8 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="lvj-frame-card lvj-radio-slot">
+              <RadioCard />
+            </div>
+            <div className="min-w-0">
+              <GospelCard className="h-full" compact />
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4 text-gold" /> Hora local
+
+          <div className="min-w-0 xl:col-span-4">
+            <ProgramCard className="h-full" compact />
           </div>
         </div>
-        <div className="glass gold-border rounded-3xl overflow-hidden">
-          <div className="divide-y divide-[hsl(var(--gold)/0.1)]">
-            {schedule.map((s) => (
+      </section>
+
+      <section className="mx-auto mt-4 grid max-w-[1760px] grid-cols-1 gap-4 px-8 xl:grid-cols-12 2xl:px-12">
+        <div className="rounded-2xl gold-border bg-navy-deep/35 p-5 xl:col-span-8">
+          <QuickAccess />
+        </div>
+
+        <aside className="rounded-2xl gold-border bg-navy-deep/35 p-5 xl:col-span-4">
+          <div className="mb-4 flex items-center gap-2">
+            <CalendarDays className="h-4 w-4 text-gold" />
+            <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-gold">
+              Programacion de Hoy
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {schedule.map((item) => (
               <div
-                key={s.time}
-                className={`grid grid-cols-[100px_1fr_1fr_auto] items-center gap-4 px-6 py-4 transition-colors hover:bg-[hsl(var(--gold)/0.04)] ${
-                  s.live ? "bg-[hsl(var(--gold)/0.06)]" : ""
-                }`}
+                key={`${item.time}-${item.title}`}
+                className="grid grid-cols-[82px_1fr] gap-3 text-sm"
               >
-                <div className="font-display text-2xl text-gold tabular-nums">{s.time}</div>
-                <div className="font-medium flex items-center gap-3">
-                  {s.title}
-                  {s.live && (
-                    <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider bg-red-600/20 text-red-400 px-2 py-0.5 rounded-full font-semibold">
-                      <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" /> En vivo
-                    </span>
-                  )}
-                </div>
-                <div className="text-sm text-muted-foreground">{s.host}</div>
-                <button
-                  className={`h-10 w-10 rounded-full flex items-center justify-center transition ${
-                    s.live
-                      ? "bg-gradient-gold text-navy-deep shadow-gold"
-                      : "glass text-gold hover:bg-gold/10"
-                  }`}
+                <div className="text-foreground/72">{item.time}</div>
+                <div
+                  className={
+                    item.live
+                      ? "font-bold text-gold"
+                      : "font-medium text-foreground/88"
+                  }
                 >
-                  <Play className="h-4 w-4 ml-0.5 fill-current" />
-                </button>
+                  {item.title}
+                </div>
               </div>
             ))}
           </div>
+
+          <button className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gold hover:text-gold-bright">
+            Ver toda la programacion
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+        </aside>
+      </section>
+
+      <section className="mx-auto max-w-[1760px] px-8 py-14 2xl:px-12">
+        <div className="mb-5 flex items-end justify-between">
+          <div>
+            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-gold">
+              En el aire
+            </div>
+            <h2 className="font-display text-4xl">Programacion de Hoy</h2>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="h-4 w-4 text-gold" />
+            Hora local
+          </div>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-5">
+          {schedule.map((item) => (
+            <article
+              key={`card-${item.time}-${item.title}`}
+              className={`rounded-2xl gold-border p-4 ${
+                item.live ? "bg-gold/10" : "bg-navy-deep/35"
+              }`}
+            >
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <span className="text-sm font-semibold text-gold">
+                  {item.time}
+                </span>
+                <button className="flex h-8 w-8 items-center justify-center rounded-full gold-border text-gold">
+                  <Play className="h-3.5 w-3.5 fill-current" />
+                </button>
+              </div>
+              <div className="font-semibold leading-snug">{item.title}</div>
+              {item.live && (
+                <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-red-500/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-red-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                  En vivo
+                </div>
+              )}
+            </article>
+          ))}
         </div>
       </section>
     </main>

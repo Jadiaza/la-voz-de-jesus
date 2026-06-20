@@ -156,6 +156,56 @@
   font-family: 'Montserrat', sans-serif;
   font-weight: 500;
 }
+  .lvj-frame-card-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .lvj-frame-card {
+    min-width: 0;
+    min-height: 128px;
+    border-radius: 1rem;
+    border: 1px solid hsl(var(--gold) / 0.35);
+    background: hsl(var(--navy-deep) / 0.72);
+    padding: 0.75rem;
+    box-shadow: var(--shadow-deep);
+  }
+
+  .lvj-radio-slot {
+    display: flex;
+    align-items: center;
+  }
+
+  .lvj-radio-slot > * {
+    width: 100%;
+  }
+
+  @media (max-width: 1320px) {
+    .lvj-frame-card-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .lvj-frame-card-grid > :nth-child(2) {
+      grid-column: span 1;
+    }
+
+    .lvj-frame-card-grid > :nth-child(3) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .lvj-frame-card-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .lvj-frame-card-grid > :nth-child(2),
+    .lvj-frame-card-grid > :nth-child(3) {
+      grid-column: auto;
+    }
+  }
   .gold-divider {
     background: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.5), transparent);
     height: 1px;

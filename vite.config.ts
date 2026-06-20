@@ -9,6 +9,13 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/dominicos-hoy": {
+        target: "https://www.dominicos.org",
+        changeOrigin: true,
+        rewrite: () => "/predicacion/evangelio-del-dia/hoy/",
+      },
+    },
     hmr: {
       overlay: false,
     },

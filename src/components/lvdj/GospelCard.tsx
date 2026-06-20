@@ -1,43 +1,126 @@
 import { BookOpen, ChevronRight } from "lucide-react";
 import bible from "@/assets/bible.jpg";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { LiturgiaDia, getTodayLiturgia } from "@/services/sheetsService";
 
 interface GospelCardProps {
-  cita?: string;
-  extracto?: string;
+  evangelioCita?: string;
+  palabraHoy?: string;
+  onRead?: () => void;
+  readHref?: string;
+  className?: string;
+  compact?: boolean;
 }
 
 export const GospelCard = ({
-  cita = "1 Samuel 3,9",
-  extracto = "Habla, Señor, que tu siervo escucha.",
-}: GospelCardProps) => (
-  <article className="relative overflow-hidden rounded-2xl glass gold-border shadow-deep">
-    <div className="absolute inset-y-0 right-0 w-1/2 opacity-60">
-      <img src={bible} alt="" className="h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-card/60 to-card" />
-    </div>
+  evangelioCita,
+  palabraHoy,
+  onRead,
+  readHref = "/lecturas-del-dia",
+  className = "",
+  compact = false,
+}: GospelCardProps) => {
+  const [liturgia, setLiturgia] = useState<LiturgiaDia | null>(null);
+  const [loading, setLoading] = useState(!evangelioCita && !palabraHoy);
+  const [error, setError] = useState(false);
 
-    <div className="relative p-5 max-w-[65%]">
-      <div className="flex items-center gap-2 mb-3">
-        <BookOpen className="h-4 w-4 text-gold" />
+  useEffect(() => {
+    if (evangelioCita || palabraHoy) {
+      setLoading(false);
+      return;
+    }
 
-        <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
-          Evangelio del Día
-        </span>
+    let mounted = true;
+
+    const loadLiturgia = async () => {
+      try {
+        const data = await getTodayLiturgia();
+        if (!mounted) return;
+
+        if (data) {
+          setLiturgia(data);
+          setError(false);
+        } else {
+          setLiturgia(null);
+          setError(true);
+        }
+      } catch {
+        if (mounted) setError(true);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadLiturgia();
+
+    return () => {
+      mounted = false;
+    };
+  }, [evangelioCita, palabraHoy]);
+
+  const evangelioCitaActual = evangelioCita ?? liturgia?.evangelio_cita ?? "";
+  const palabraHoyActual =
+    palabraHoy ??
+    liturgia?.palabra_hoy ??
+    (loading
+      ? "Cargando palabra..."
+      : error
+        ? "La Palabra para hoy estara disponible pronto."
+        : "La Palabra para hoy estara disponible pronto.");
+  const actionClassName =
+    "shrink-0 inline-flex items-center gap-1 gold-border rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold hover:bg-gold/10 transition";
+
+  return (
+    <article
+      className={`relative overflow-hidden rounded-2xl glass gold-border shadow-deep ${className}`}
+    >
+      <div className="absolute inset-0">
+        <img
+          src={bible}
+          alt=""
+          className="w-full h-full object-cover opacity-25"
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-b from-card/90 via-card/80 to-card/92" />
+        <div className="absolute inset-0 bg-gradient-radial-gold opacity-15 mix-blend-screen" />
       </div>
 
-      <p className="font-display text-xl leading-snug">
-        <span className="text-gold/70 mr-1 text-2xl align-top">“</span>
-        {extracto}
-      </p>
+      <div className={`relative flex h-full flex-col ${compact ? "px-5 py-4" : "px-5 py-5"}`}>
+        <div className={`${compact ? "mb-2" : "mb-4"} flex items-center gap-2`}>
+          <BookOpen className="h-4 w-4 text-gold shrink-0" />
 
-      <div className="text-xs text-muted-foreground mt-2">
-        {cita}
+          <span className="text-[11px] font-semibold uppercase tracking-[0.28em] text-gold">
+            Palabra para Hoy
+          </span>
+        </div>
+
+        <p
+          className={`mx-auto flex-1 max-w-[22rem] content-center text-center font-semibold leading-snug text-foreground/95 ${
+            compact ? "text-[14px]" : "text-[15px] sm:text-base"
+          }`}
+        >
+          {palabraHoyActual}
+        </p>
+
+        <div className={`${compact ? "mt-2" : "mt-4"} flex items-center justify-between gap-3`}>
+          <div className="min-w-0 text-xs font-medium text-gold/80">
+            {evangelioCitaActual}
+          </div>
+
+          {onRead ? (
+            <button onClick={onRead} className={actionClassName}>
+              Leer Reflexion
+              <ChevronRight className="h-3 w-3" />
+            </button>
+          ) : (
+            <Link to={readHref} className={actionClassName}>
+              Leer Reflexion
+              <ChevronRight className="h-3 w-3" />
+            </Link>
+          )}
+        </div>
       </div>
-
-      <button className="mt-4 inline-flex items-center gap-1 gold-border rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold hover:bg-gold/10 transition">
-        Leer Evangelio
-        <ChevronRight className="h-3 w-3" />
-      </button>
-    </div>
-  </article>
-);
+    </article>
+  );
+};
