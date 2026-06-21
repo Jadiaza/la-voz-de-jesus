@@ -1,4 +1,38 @@
+/*
+==============================================================================
+PROYECTO: LA VOZ DE JESUS - PWA RADIO CATOLICA
+COMPONENTE: ProgramCard.tsx
+VERSION: 1.0.0
+
+DESARROLLADO POR:
+Ing. Jose Alberto Diaz Agresott
+
+PROPIETARIO:
+Emisora Catolica La Voz de Jesus
+
+UBICACION:
+Monteria - Cordoba - Colombia
+
+DERECHOS RESERVADOS
+Emisora La Voz de Jesus
+
+DESCRIPCION:
+Tarjeta informativa del proximo programa de la emisora.
+
+FUNCIONES:
+- Muestra el nombre del proximo programa.
+- Muestra la hora de emision.
+- Ofrece acceso a la programacion completa.
+- Incluye variante compacta para la version de escritorio.
+
+==============================================================================
+*/
+
 import { Clock, ChevronRight } from "lucide-react";
+
+/* ==========================================================================
+   PROPIEDADES DEL COMPONENTE
+   ========================================================================== */
 
 export const ProgramCard = ({
   title = "Santa Misa",

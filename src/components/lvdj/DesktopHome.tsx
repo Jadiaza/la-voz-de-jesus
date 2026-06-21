@@ -1,3 +1,34 @@
+/*
+==============================================================================
+PROYECTO: LA VOZ DE JESUS - PWA RADIO CATOLICA
+COMPONENTE: DesktopHome.tsx
+VERSION: 1.0.0
+
+DESARROLLADO POR:
+Ing. Jose Alberto Diaz Agresott
+
+PROPIETARIO:
+Emisora Catolica La Voz de Jesus
+
+UBICACION:
+Monteria - Cordoba - Colombia
+
+DERECHOS RESERVADOS
+Emisora La Voz de Jesus
+
+DESCRIPCION:
+Pantalla principal para escritorio y pantallas amplias.
+
+FUNCIONES:
+- Presenta el hero de capilla virtual con imagen de custodia.
+- Integra navegacion superior, acciones de usuario y acceso En Vivo.
+- Organiza radio, Palabra para Hoy y proximo programa en un frame superior.
+- Alinea accesos rapidos y programacion del dia en un frame inferior.
+- Mantiene una experiencia premium coherente con el estilo oscuro/dorado.
+
+==============================================================================
+*/
+
 import {
   Bell,
   CalendarDays,
@@ -34,6 +65,14 @@ const schedule = [
   { time: "03:00 PM", title: "Hora de la Misericordia", live: false },
   { time: "07:00 PM", title: "Adoracion Eucaristica", live: false },
 ];
+
+/* ==========================================================================
+   ESTRUCTURA PRINCIPAL DE ESCRITORIO
+   ==========================================================================
+   La grilla usa 12 columnas:
+   - 8 columnas para radio + Palabra para Hoy, alineadas con Accesos Rapidos.
+   - 4 columnas para Proximo Programa, alineadas con Programacion de Hoy.
+*/
 
 export const DesktopHome = () => (
   <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -121,7 +160,7 @@ export const DesktopHome = () => (
 
       <section className="relative z-10 mx-auto max-w-[1760px] px-8 pt-0 2xl:px-12">
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-          <div className="grid grid-cols-1 gap-4 xl:col-span-8 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="grid grid-cols-1 gap-4 xl:col-span-8 lg:grid-cols-[0.72fr_1.28fr]">
             <div className="lvj-frame-card lvj-radio-slot">
               <RadioCard />
             </div>

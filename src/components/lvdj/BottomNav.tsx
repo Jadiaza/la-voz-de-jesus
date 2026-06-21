@@ -1,4 +1,39 @@
-import { Home, Radio, HandHeart, CalendarRange, MoreHorizontal } from "lucide-react";
+/*
+==============================================================================
+PROYECTO: LA VOZ DE JESUS - PWA RADIO CATOLICA
+COMPONENTE: BottomNav.tsx
+VERSION: 1.0.0
+
+DESARROLLADO POR:
+Ing. Jose Alberto Diaz Agresott
+
+PROPIETARIO:
+Emisora Catolica La Voz de Jesus
+
+UBICACION:
+Monteria - Cordoba - Colombia
+
+DERECHOS RESERVADOS
+Emisora La Voz de Jesus
+
+DESCRIPCION:
+Menu inferior fijo para la navegacion principal en dispositivos moviles.
+
+FUNCIONES:
+- Presenta accesos persistentes a las secciones principales.
+- Marca visualmente la seccion activa.
+- Respeta el area segura inferior en dispositivos con gestos o notch.
+
+==============================================================================
+*/
+
+import {
+  CalendarRange,
+  HandHeart,
+  Home,
+  MoreHorizontal,
+  Radio,
+} from "lucide-react";
 
 const items = [
   { icon: Home, label: "Inicio", active: true },
@@ -13,25 +48,25 @@ export const BottomNav = () => (
     <div className="mx-auto max-w-md">
       <div className="glass border-t border-[hsl(var(--gold)/0.2)] px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <div className="flex items-end justify-around">
-          {items.map((it) => (
+          {items.map((item) => (
             <button
-              key={it.label}
+              key={item.label}
               className="flex flex-col items-center gap-1 px-2 py-1 min-w-[56px]"
             >
-              <it.icon
+              <item.icon
                 className={`h-5 w-5 ${
-                  it.active ? "text-gold" : "text-foreground/55"
+                  item.active ? "text-gold" : "text-foreground/55"
                 }`}
-                strokeWidth={it.active ? 2 : 1.6}
+                strokeWidth={item.active ? 2 : 1.6}
               />
               <span
                 className={`text-[10px] ${
-                  it.active ? "text-gold font-medium" : "text-foreground/55"
+                  item.active ? "text-gold font-medium" : "text-foreground/55"
                 }`}
               >
-                {it.label}
+                {item.label}
               </span>
-              {it.active && (
+              {item.active && (
                 <span className="h-0.5 w-5 rounded-full bg-gradient-gold -mt-0.5" />
               )}
             </button>
