@@ -60,7 +60,7 @@ export const ProgramHeroCard = ({
           {eyebrow}
         </div>
 
-        <h2 className="font-display text-3xl font-semibold leading-none text-foreground sm:text-5xl lg:text-4xl xl:text-5xl">
+        <h2 className="font-sans text-3xl font-bold leading-none text-foreground sm:text-5xl lg:text-4xl xl:text-5xl">
           {program.nombre}
         </h2>
 

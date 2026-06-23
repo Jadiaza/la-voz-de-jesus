@@ -157,7 +157,7 @@ export const ProgramCard = ({
         </div>
 
         <div
-          className={`max-w-full font-display leading-tight text-foreground ${
+          className={`max-w-full font-sans font-bold leading-tight text-foreground ${
             compact ? "text-xl" : "text-[1.35rem] sm:text-2xl"
           }`}
         >
