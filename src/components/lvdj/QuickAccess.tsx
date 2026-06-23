@@ -2,40 +2,20 @@
 ==============================================================================
 PROYECTO: LA VOZ DE JESUS - PWA RADIO CATOLICA
 COMPONENTE: QuickAccess.tsx
-VERSION: 1.0.0
-
-DESARROLLADO POR:
-Ing. Jose Alberto Diaz Agresott
-
-PROPIETARIO:
-Emisora Catolica La Voz de Jesus
-
-UBICACION:
-Monteria - Cordoba - Colombia
-
-DERECHOS RESERVADOS
-Emisora La Voz de Jesus
+VERSION: 1.1.0
 
 DESCRIPCION:
 Modulo de accesos rapidos a las secciones principales de la aplicacion.
-
-FUNCIONES:
-- Presenta accesos visuales con iconos propios de la marca.
-- Muestra seis accesos en modo compacto para mobile.
-- Muestra todos los accesos disponibles en tablet y escritorio.
-- Mantiene el estilo oscuro/dorado del home principal.
-
 ==============================================================================
 */
+
+import { Link } from "react-router-dom";
 
 interface QuickAccessItem {
   image: string;
   label: string;
+  to?: string;
 }
-
-/* ==========================================================================
-   ACCESOS DISPONIBLES
-   ========================================================================== */
 
 const items: QuickAccessItem[] = [
   {
@@ -64,7 +44,8 @@ const items: QuickAccessItem[] = [
   },
   {
     image: "/icons/programa.png",
-    label: "Programa",
+    label: "Programacion",
+    to: "/programacion",
   },
   {
     image: "/icons/donar.png",
@@ -72,10 +53,15 @@ const items: QuickAccessItem[] = [
   },
 ];
 
+const getVisibleItems = (compact: boolean) =>
+  compact
+    ? [items[0], items[1], items[2], items[3], items[4], items[6]]
+    : items;
+
 export const QuickAccess = ({ compact = false }: { compact?: boolean }) => (
   <div>
-    <div className="text-[11px] font-semibold uppercase tracking-[0.25em] text-gold/90 mb-3 px-1">
-      Accesos Rápidos
+    <div className="mb-3 px-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-gold/90">
+      Accesos Rapidos
     </div>
 
     <div
@@ -83,24 +69,35 @@ export const QuickAccess = ({ compact = false }: { compact?: boolean }) => (
         compact ? "grid-cols-3" : "grid-cols-4 md:grid-cols-8"
       }`}
     >
-      {(compact ? items.slice(0, 6) : items).map((item) => (
-        <button
-          key={item.label}
-          className="group relative aspect-square rounded-2xl glass gold-border flex flex-col items-center justify-center gap-2.5 p-1.5 hover:bg-[hsl(var(--gold)/0.08)] active:scale-95 transition"
-        >
-          <span className="absolute inset-0 rounded-2xl bg-gradient-radial-gold opacity-0 group-hover:opacity-60 transition" />
+      {getVisibleItems(compact).map((item) => {
+        const className =
+          "group relative aspect-square rounded-2xl glass gold-border flex flex-col items-center justify-center gap-2.5 p-1.5 hover:bg-[hsl(var(--gold)/0.08)] active:scale-95 transition";
+        const content = (
+          <>
+            <span className="absolute inset-0 rounded-2xl bg-gradient-radial-gold opacity-0 transition group-hover:opacity-60" />
 
-          <img
-            src={item.image}
-            alt={item.label}
-            className="relative h-12 w-12 object-contain"
-          />
+            <img
+              src={item.image}
+              alt={item.label}
+              className="relative h-12 w-12 object-contain"
+            />
 
-          <span className="relative text-[10px] leading-tight text-center text-foreground/85 font-medium whitespace-pre-line">
-            {item.label}
-          </span>
-        </button>
-      ))}
+            <span className="relative whitespace-pre-line text-center text-[10px] font-medium leading-tight text-foreground/85">
+              {item.label}
+            </span>
+          </>
+        );
+
+        return item.to ? (
+          <Link key={item.label} to={item.to} className={className}>
+            {content}
+          </Link>
+        ) : (
+          <button key={item.label} type="button" className={className}>
+            {content}
+          </button>
+        );
+      })}
     </div>
   </div>
 );

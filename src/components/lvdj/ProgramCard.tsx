@@ -78,11 +78,17 @@ const fallbackSchedule: ProgramacionRadio[] = [
 ];
 
 export const ProgramCard = ({
+  programa,
+  hora,
+  imagenUrl,
   title,
   time,
   className = "",
   compact = false,
 }: {
+  programa?: string;
+  hora?: string;
+  imagenUrl?: string;
   title?: string;
   time?: string;
   className?: string;
@@ -115,40 +121,68 @@ export const ProgramCard = ({
     return getNextProgram(source, now);
   }, [now, programacion]);
 
-  const displayTitle = title ?? nextProgram?.programa ?? "Santa Misa";
-  const displayTime = time ?? formatTime(nextProgram?.hora_inicio ?? "10:00");
+  const displayTitle = programa ?? title ?? nextProgram?.programa ?? "Santa Misa";
+  const displayTime = hora ?? time ?? formatTime(nextProgram?.hora_inicio ?? "10:00");
+  const backgroundImage = imagenUrl ?? nextProgram?.imagen_url ?? "";
 
   return (
     <article
-      className={`relative overflow-hidden rounded-2xl glass gold-border flex items-center gap-4 ${
-        compact ? "p-4" : "p-5"
+      className={`relative overflow-hidden rounded-2xl glass gold-border shadow-deep bg-navy-deep/75 ${
+        compact ? "min-h-[168px] p-4 lg:min-h-[190px]" : "p-5"
       } ${className}`}
     >
-      <div className="flex-1 min-w-0">
-        <div className={`flex items-center gap-2 ${compact ? "mb-1.5" : "mb-2"}`}>
+      {/* Imagen decorativa del programa: baja opacidad para no competir con el texto. */}
+      {backgroundImage && (
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+          <img
+            src={backgroundImage}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-[0.18]"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-navy-deep via-navy-deep/80 to-navy-deep/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-navy-deep/50 via-transparent to-navy-deep/80" />
+        </div>
+      )}
+      <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-navy-deep/95 via-navy-deep/86 to-navy-deep/72" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-black/10" />
+
+      <div className="relative z-10 flex h-full flex-col">
+        <div className={`flex items-center gap-2 ${compact ? "mb-3" : "mb-4"}`}>
           <Clock className="h-4 w-4 text-gold" />
           <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
             Proximo Programa
           </span>
         </div>
 
-        <div className={`font-display leading-tight ${compact ? "text-xl" : "text-2xl"}`}>
+        <div
+          className={`max-w-full font-display leading-tight text-foreground ${
+            compact ? "text-xl" : "text-[1.35rem] sm:text-2xl"
+          }`}
+        >
           {displayTitle}
         </div>
 
-        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
-          <Clock className="h-3 w-3 text-gold/70" /> {displayTime}
+        <div
+          className={`mt-auto flex items-end justify-between gap-3 ${
+            compact ? "pt-4" : "pt-5"
+          }`}
+        >
+          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+            <Clock className="h-3 w-3 text-gold/70" /> {displayTime}
+          </div>
+
+          {!compact && (
+            <Link
+              to="/programacion"
+              className="shrink-0 inline-flex items-center gap-1 gold-border rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold hover:bg-gold/10 transition"
+            >
+              Ver Programacion <ChevronRight className="h-3 w-3" />
+            </Link>
+          )}
         </div>
       </div>
-
-      {!compact && (
-        <Link
-          to="/programacion"
-          className="shrink-0 inline-flex items-center gap-1 gold-border rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold hover:bg-gold/10 transition"
-        >
-          Ver Programacion <ChevronRight className="h-3 w-3" />
-        </Link>
-      )}
     </article>
   );
 };

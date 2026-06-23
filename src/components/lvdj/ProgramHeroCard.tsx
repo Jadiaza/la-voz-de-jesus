@@ -1,0 +1,98 @@
+import { ChevronRight, Clock, Play, Radio } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+export interface Programa {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  horaInicio: string;
+  horaFin?: string;
+  dia: string;
+  categoria: string;
+  icono?: string;
+  imagenUrl?: string;
+  enVivo?: boolean;
+  destacado?: boolean;
+}
+
+interface ProgramHeroCardProps {
+  eyebrow: string;
+  program: Programa;
+  variant: "live" | "next";
+  className?: string;
+  onAction?: (program: Programa) => void;
+}
+
+export const ProgramHeroCard = ({
+  eyebrow,
+  program,
+  variant,
+  className,
+  onAction,
+}: ProgramHeroCardProps) => {
+  const Icon = variant === "live" ? Radio : Clock;
+
+  return (
+    <article
+      className={cn(
+        "relative min-h-[230px] w-full max-w-full overflow-hidden rounded-2xl gold-border bg-navy-deep/80 p-5 shadow-deep",
+        "sm:min-h-[300px] sm:p-6 lg:min-h-[255px]",
+        className,
+      )}
+    >
+      {program.imagenUrl ? (
+        <img
+          src={program.imagenUrl}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-40"
+          loading="lazy"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_35%,hsl(var(--gold)/0.28),transparent_38%),linear-gradient(135deg,hsl(var(--navy-deep)),hsl(var(--navy)))]" />
+      )}
+
+      <div className="absolute inset-0 bg-gradient-to-r from-navy-deep via-navy-deep/80 to-navy-deep/40" />
+      <div className="absolute inset-0 bg-gradient-to-t from-navy-deep/90 via-transparent to-black/25" />
+
+      <div className="relative z-10 flex h-full min-w-0 max-w-[420px] flex-col">
+        <div className="mb-4 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-gold sm:mb-5 sm:text-xs sm:tracking-[0.16em]">
+          <Icon className="h-4 w-4" />
+          {eyebrow}
+        </div>
+
+        <h2 className="font-display text-3xl font-semibold leading-none text-foreground sm:text-5xl lg:text-4xl xl:text-5xl">
+          {program.nombre}
+        </h2>
+
+        <div className="mt-3 text-sm font-bold text-gold sm:mt-4 sm:text-base">
+          {program.horaInicio}
+          {program.horaFin ? ` - ${program.horaFin}` : ""}
+        </div>
+
+        {variant === "live" && (
+          <p className="mt-3 max-w-[320px] text-sm leading-relaxed text-foreground/80">
+            {program.descripcion}
+          </p>
+        )}
+
+        <button
+          type="button"
+          onClick={() => onAction?.(program)}
+          className={cn(
+            "mt-auto inline-flex w-fit items-center gap-2 rounded-lg px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wide transition hover:scale-[1.01] sm:gap-3 sm:px-5 sm:py-3 sm:text-xs",
+            variant === "live"
+              ? "bg-gradient-gold text-navy-deep shadow-gold"
+              : "gold-border text-gold hover:bg-gold/10",
+          )}
+        >
+          {variant === "live" ? (
+            <Play className="h-4 w-4 fill-current" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
+          {variant === "live" ? "Escuchar ahora" : "Ver detalles"}
+        </button>
+      </div>
+    </article>
+  );
+};
