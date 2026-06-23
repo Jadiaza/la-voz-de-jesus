@@ -60,13 +60,13 @@ import {
 } from "@/utils/programacion";
 
 const links = [
-  "Inicio",
-  "Radio",
-  "Capilla",
-  "Evangelio",
-  "Comunidad",
-  "Programacion",
-  "Contacto",
+  { label: "Inicio", to: "/" },
+  { label: "Radio", to: "/radio" },
+  { label: "Capilla", to: "/" },
+  { label: "Evangelio", to: "/lecturas-del-dia" },
+  { label: "Comunidad", to: "/" },
+  { label: "Programacion", to: "/programacion" },
+  { label: "Contacto", to: "/contacto" },
 ];
 
 const fallbackSchedule: ProgramacionRadio[] = [
@@ -166,20 +166,20 @@ export const DesktopHome = () => {
 
         <nav className="hidden lg:flex items-center gap-2">
           {links.map((link, index) => (
-            <a
-              key={link}
-              href="#"
+            <Link
+              key={link.label}
+              to={link.to}
               className={`relative px-3 py-2 text-sm font-semibold transition-colors xl:px-4 ${
                 index === 0
                   ? "text-gold"
                   : "text-foreground/72 hover:text-gold"
               }`}
             >
-              {link}
+              {link.label}
               {index === 0 && (
                 <span className="absolute left-1/2 top-full h-px w-10 -translate-x-1/2 bg-gradient-gold" />
               )}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -188,10 +188,13 @@ export const DesktopHome = () => {
             <Bell className="h-5 w-5" />
             <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-gold ring-2 ring-navy-deep" />
           </button>
-          <button className="inline-flex h-11 items-center gap-2 rounded-full gold-border px-4 text-xs font-bold uppercase tracking-wider text-gold transition hover:bg-gold/10">
+          <Link
+            to="/radio"
+            className="inline-flex h-11 items-center gap-2 rounded-full gold-border px-4 text-xs font-bold uppercase tracking-wider text-gold transition hover:bg-gold/10"
+          >
             <RadioIcon className="h-4 w-4" />
             En Vivo
-          </button>
+          </Link>
           <button className="hidden h-11 items-center gap-2 rounded-full gold-border bg-navy-deep/40 pl-1.5 pr-3 text-sm font-semibold text-foreground/85 transition hover:bg-gold/10 xl:inline-flex">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-gold text-navy-deep">
               <User2 className="h-4 w-4" />

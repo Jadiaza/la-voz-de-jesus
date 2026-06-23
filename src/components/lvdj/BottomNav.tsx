@@ -20,7 +20,7 @@ import { Link } from "react-router-dom";
 
 const items = [
   { icon: Home, label: "Inicio", to: "/" },
-  { icon: Radio, label: "Radio", to: "/" },
+  { icon: Radio, label: "Radio", to: "/radio" },
   { icon: HandHeart, label: "Oración", to: "/" },
   { icon: CalendarRange, label: "Programas", to: "/programacion" },
   { icon: MoreHorizontal, label: "Más", to: "/" },

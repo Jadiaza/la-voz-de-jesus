@@ -29,6 +29,7 @@ const items: QuickAccessItem[] = [
   {
     image: "/icons/podcast.png",
     label: "Podcast",
+    to: "/podcast",
   },
   {
     image: "/icons/peticiones.png",
