@@ -1,7 +1,10 @@
 import { Zap } from "lucide-react";
+import { AdsenseAd } from "./AdsenseAd";
 
-export const AdBanner = () => (
-  <aside className="w-full max-w-full overflow-hidden rounded-2xl gold-border bg-navy-deep/60 shadow-deep">
+const PROGRAMACION_AD_SLOT = import.meta.env.VITE_ADSENSE_PROGRAMACION_SLOT;
+
+const AdPlaceholder = () => (
+  <>
     <div className="relative grid min-h-[118px] items-center gap-3 px-4 py-4 sm:px-5 xl:min-h-[90px] xl:grid-cols-[180px_1fr_auto] xl:gap-4 xl:px-8">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,hsl(var(--gold)/0.16),transparent_36%),linear-gradient(90deg,hsl(var(--navy-deep)),hsl(var(--navy)/0.74))]" />
       <div className="absolute inset-0 bg-black/10" />
@@ -33,5 +36,17 @@ export const AdBanner = () => (
         </div>
       </div>
     </div>
+  </>
+);
+
+export const AdBanner = () => (
+  <aside className="w-full max-w-full overflow-hidden rounded-2xl gold-border bg-navy-deep/60 shadow-deep">
+    <AdsenseAd
+      slot={PROGRAMACION_AD_SLOT}
+      format="horizontal"
+      fullWidthResponsive
+      className="min-h-[118px] xl:min-h-[90px]"
+      fallback={<AdPlaceholder />}
+    />
   </aside>
 );

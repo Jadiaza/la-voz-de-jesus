@@ -13,6 +13,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BottomNav } from "@/components/lvdj/BottomNav";
+import { AdsenseAd } from "@/components/lvdj/AdsenseAd";
 import { Logo } from "@/components/lvdj/Logo";
 import { useRadioPlayer } from "@/context/RadioPlayerContext";
 import {
@@ -72,6 +73,8 @@ const quickLinks = [
   { label: "Podcast", to: "/" },
   { label: "Programacion", to: "/programacion" },
 ];
+
+const RADIO_AD_SLOT = import.meta.env.VITE_ADSENSE_RADIO_SLOT;
 
 const Radio = () => {
   const navigate = useNavigate();
@@ -273,21 +276,31 @@ const Radio = () => {
             </div>
           </section>
 
-          <section className="rounded-2xl gold-border bg-navy-deep/45 p-4 text-center shadow-deep xl:min-h-[90px]">
-            <div className="text-xs font-extrabold uppercase tracking-wide text-foreground/75">
-              Espacio publicitario
-            </div>
-            <div className="mt-2 text-2xl font-bold">Tu marca aqui</div>
-            <div className="mt-1 text-xs text-foreground/60">
-              Llega a nuestra comunidad
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate("/contacto")}
-              className="mt-4 rounded-lg bg-gradient-gold px-4 py-2 text-xs font-bold text-navy-deep shadow-gold"
-            >
-              Anunciate
-            </button>
+          <section className="overflow-hidden rounded-2xl gold-border bg-navy-deep/45 p-4 text-center shadow-deep xl:min-h-[90px]">
+            <AdsenseAd
+              slot={RADIO_AD_SLOT}
+              format="rectangle"
+              fullWidthResponsive
+              className="min-h-[90px]"
+              fallback={
+                <div>
+                  <div className="text-xs font-extrabold uppercase tracking-wide text-foreground/75">
+                    Espacio publicitario
+                  </div>
+                  <div className="mt-2 text-2xl font-bold">Tu marca aqui</div>
+                  <div className="mt-1 text-xs text-foreground/60">
+                    Llega a nuestra comunidad
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/contacto")}
+                    className="mt-4 rounded-lg bg-gradient-gold px-4 py-2 text-xs font-bold text-navy-deep shadow-gold"
+                  >
+                    Anunciate
+                  </button>
+                </div>
+              }
+            />
           </section>
         </aside>
       </main>
