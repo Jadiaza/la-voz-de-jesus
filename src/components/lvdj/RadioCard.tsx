@@ -10,10 +10,14 @@ Acceso compacto al reproductor global de radio.
 */
 
 import { Loader2, Pause, Play, Radio as RadioIcon } from "lucide-react";
-import { useRadioPlayer } from "@/context/RadioPlayerContext";
+import { useRadioPlayer } from "@/context/useRadioPlayer";
 
 export const RadioCard = () => {
-  const { artist, title, status, isPlaying, toggle } = useRadioPlayer();
+  const { artist, title, defaultTitle, status, isPlaying, toggle } =
+    useRadioPlayer();
+  const songTitle =
+    title && title !== defaultTitle ? title : "Senal en vivo";
+  const artistName = artist || defaultTitle;
 
   return (
     <button
@@ -32,14 +36,12 @@ export const RadioCard = () => {
 
       <div className="min-w-0 flex-1 text-left">
         <div className="truncate text-[15px] font-bold text-navy-deep/95">
-          {isPlaying ? title : "CONECTA TU ESPIRITU"}
+          {songTitle}
         </div>
 
-        {artist && isPlaying && (
-          <div className="mt-0.5 truncate text-[12px] font-medium text-navy-deep/70">
-            {artist}
-          </div>
-        )}
+        <div className="mt-0.5 truncate text-[12px] font-medium text-navy-deep/70">
+          {artistName}
+        </div>
 
         {status === "error" && (
           <div className="mt-1 text-xs text-red-700">

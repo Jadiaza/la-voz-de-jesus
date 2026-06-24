@@ -85,6 +85,7 @@ export const ProgramCard = ({
   time,
   className = "",
   compact = false,
+  showAction = true,
 }: {
   programa?: string;
   hora?: string;
@@ -93,9 +94,11 @@ export const ProgramCard = ({
   time?: string;
   className?: string;
   compact?: boolean;
+  showAction?: boolean;
 }) => {
   const [programacion, setProgramacion] = useState<ProgramacionRadio[]>([]);
   const [now, setNow] = useState(() => new Date());
+  const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -124,56 +127,74 @@ export const ProgramCard = ({
   const displayTitle = programa ?? title ?? nextProgram?.programa ?? "Santa Misa";
   const displayTime = hora ?? time ?? formatTime(nextProgram?.hora_inicio ?? "10:00");
   const backgroundImage = imagenUrl ?? nextProgram?.imagen_url ?? "";
+  const showProgramImage = Boolean(backgroundImage) && !imageFailed;
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [backgroundImage]);
 
   return (
     <article
       className={`relative overflow-hidden rounded-2xl glass gold-border shadow-deep bg-navy-deep/75 ${
-        compact ? "min-h-[168px] p-4 lg:min-h-[190px]" : "p-5"
+        compact ? "min-h-[184px] p-4 lg:min-h-[205px]" : "p-5"
       } ${className}`}
     >
       {/* Imagen decorativa del programa: baja opacidad para no competir con el texto. */}
-      {backgroundImage && (
+      {showProgramImage && (
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <img
             src={backgroundImage}
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover object-center opacity-[0.18]"
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-85"
             loading="lazy"
+            onError={() => setImageFailed(true)}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy-deep via-navy-deep/80 to-navy-deep/60" />
-          <div className="absolute inset-0 bg-gradient-to-b from-navy-deep/50 via-transparent to-navy-deep/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-navy-deep/44 via-navy-deep/18 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-navy-deep/40" />
         </div>
       )}
-      <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-navy-deep/95 via-navy-deep/86 to-navy-deep/72" />
+      {!showProgramImage && (
+        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-navy-deep/95 via-navy-deep/86 to-navy-deep/72" />
+      )}
       <div className="pointer-events-none absolute inset-0 z-0 bg-black/10" />
 
-      <div className="relative z-10 flex h-full flex-col">
-        <div className={`flex items-center gap-2 ${compact ? "mb-3" : "mb-4"}`}>
-          <Clock className="h-4 w-4 text-gold" />
-          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
+      <div
+        className={`relative z-10 flex h-full flex-col ${
+          showProgramImage ? "justify-end gap-2" : ""
+        }`}
+      >
+        <div
+          className={`flex w-fit items-center gap-2 rounded-full bg-navy-deep/58 px-3 py-1.5 shadow-deep backdrop-blur-sm ${
+            compact ? "mb-3" : "mb-4"
+          }`}
+        >
+          <Clock className="h-4 w-4 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]" />
+          <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
             Proximo Programa
           </span>
         </div>
 
-        <div
-          className={`max-w-full font-sans font-bold leading-tight text-foreground ${
-            compact ? "text-xl" : "text-[1.35rem] sm:text-2xl"
-          }`}
-        >
-          {displayTitle}
-        </div>
+        {!showProgramImage && (
+          <div
+            className={`max-w-full font-sans font-bold leading-tight text-foreground ${
+              compact ? "text-xl" : "text-[1.35rem] sm:text-2xl"
+            }`}
+          >
+            {displayTitle}
+          </div>
+        )}
 
         <div
           className={`mt-auto flex items-end justify-between gap-3 ${
-            compact ? "pt-4" : "pt-5"
+            compact ? "pt-4" : showProgramImage ? "pt-0" : "pt-5"
           }`}
         >
-          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-            <Clock className="h-3 w-3 text-gold/70" /> {displayTime}
+          <div className="flex w-fit items-center gap-1.5 rounded-full bg-navy-deep/58 px-3 py-1.5 text-xs font-extrabold text-white shadow-deep backdrop-blur-sm drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+            <Clock className="h-3 w-3 text-white" /> {displayTime}
           </div>
 
-          {!compact && (
+          {!compact && showAction && (
             <Link
               to="/programacion"
               className="shrink-0 inline-flex items-center gap-1 gold-border rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold hover:bg-gold/10 transition"

@@ -1,7 +1,7 @@
 import { Zap } from "lucide-react";
+import { useEffect, useState } from "react";
 import { AdsenseAd } from "./AdsenseAd";
-
-const PROGRAMACION_AD_SLOT = import.meta.env.VITE_ADSENSE_PROGRAMACION_SLOT;
+import { DEFAULT_APP_CONFIG, getAppConfig } from "@/services/sheetsService";
 
 const AdPlaceholder = () => (
   <>
@@ -39,14 +39,49 @@ const AdPlaceholder = () => (
   </>
 );
 
-export const AdBanner = () => (
-  <aside className="w-full max-w-full overflow-hidden rounded-2xl gold-border bg-navy-deep/60 shadow-deep">
-    <AdsenseAd
-      slot={PROGRAMACION_AD_SLOT}
-      format="horizontal"
-      fullWidthResponsive
-      className="min-h-[118px] xl:min-h-[90px]"
-      fallback={<AdPlaceholder />}
-    />
-  </aside>
-);
+export const AdBanner = () => {
+  const [adsConfig, setAdsConfig] = useState({
+    enabled: DEFAULT_APP_CONFIG.ads_enabled,
+    clientId: DEFAULT_APP_CONFIG.adsense_client_id,
+    slot:
+      import.meta.env.VITE_ADSENSE_PROGRAMACION_SLOT ||
+      DEFAULT_APP_CONFIG.adsense_programacion_slot,
+  });
+
+  useEffect(() => {
+    let mounted = true;
+
+    getAppConfig()
+      .then((config) => {
+        if (!mounted) return;
+
+        setAdsConfig({
+          enabled: config.ads_enabled,
+          clientId: config.adsense_client_id,
+          slot:
+            config.adsense_programacion_slot ||
+            import.meta.env.VITE_ADSENSE_PROGRAMACION_SLOT ||
+            "",
+        });
+      })
+      .catch((error) => console.error("Ads config error:", error));
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  return (
+    <aside className="w-full max-w-full overflow-hidden rounded-2xl gold-border bg-navy-deep/60 shadow-deep">
+      <AdsenseAd
+        enabled={adsConfig.enabled}
+        clientId={adsConfig.clientId}
+        slot={adsConfig.slot}
+        format="horizontal"
+        fullWidthResponsive
+        className="min-h-[118px] xl:min-h-[90px]"
+        fallback={<AdPlaceholder />}
+      />
+    </aside>
+  );
+};

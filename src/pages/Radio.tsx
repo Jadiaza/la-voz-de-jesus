@@ -1,29 +1,36 @@
 import {
-  ArrowLeft,
   CalendarDays,
+  ChevronRight,
   Church,
+  Clock3,
   Headphones,
+  Home,
   Loader2,
+  Mail,
+  Menu,
   Pause,
   Play,
   Radio as RadioIcon,
-  Share2,
   Volume2,
+  VolumeX,
+  X,
 } from "lucide-react";
+import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BottomNav } from "@/components/lvdj/BottomNav";
 import { AdsenseAd } from "@/components/lvdj/AdsenseAd";
+import { BottomNav } from "@/components/lvdj/BottomNav";
 import { Logo } from "@/components/lvdj/Logo";
-import { useRadioPlayer } from "@/context/RadioPlayerContext";
+import { useRadioPlayer } from "@/context/useRadioPlayer";
 import {
+  DEFAULT_APP_CONFIG,
   ProgramacionRadio,
+  getAppConfig,
   getPublishedProgramacion,
 } from "@/services/sheetsService";
 import {
   formatTime,
   getNextProgram,
-  isProgramLive,
 } from "@/utils/programacion";
 import monstranceImage from "@/assets/monstrance-hero.jpg";
 
@@ -60,30 +67,57 @@ const fallbackSchedule: ProgramacionRadio[] = [
   },
 ];
 
-const statusLabel = {
-  idle: "Pausado",
-  connecting: "Conectando...",
-  playing: "En vivo",
-  error: "Error de conexion",
-};
-
-const quickLinks = [
+const sideLinks = [
+  { label: "Inicio", to: "/", icon: Home },
+  { label: "Radio en vivo", to: "/radio", icon: RadioIcon },
   { label: "Oracion", to: "/", icon: Church },
-  { label: "Evangelio", to: "/lecturas-del-dia" },
-  { label: "Podcast", to: "/" },
-  { label: "Programacion", to: "/programacion" },
+  { label: "Evangelio", to: "/lecturas-del-dia", icon: Headphones },
+  { label: "Programacion", to: "/programacion", icon: CalendarDays },
+  { label: "Contacto", to: "/contacto", icon: Mail },
 ];
 
-const RADIO_AD_SLOT = import.meta.env.VITE_ADSENSE_RADIO_SLOT;
+const getDriveImageId = (url: string) => {
+  const fileMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
+  const idMatch = url.match(/[?&]id=([^&]+)/i);
+  const googleUserContentMatch = url.match(/googleusercontent\.com\/d\/([^=/?]+)/i);
+
+  return fileMatch?.[1] ?? idMatch?.[1] ?? googleUserContentMatch?.[1] ?? "";
+};
+
+const getProgramImageCandidates = (url: string) => {
+  if (!url) return [];
+
+  const driveId = getDriveImageId(url);
+
+  if (!driveId) return [url];
+
+  return [
+    `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`,
+    `https://lh3.googleusercontent.com/d/${driveId}=s1000`,
+    `https://drive.google.com/uc?export=view&id=${driveId}`,
+  ];
+};
 
 const Radio = () => {
   const navigate = useNavigate();
   const player = useRadioPlayer();
   const [programacion, setProgramacion] = useState<ProgramacionRadio[]>([]);
   const [now, setNow] = useState(() => new Date());
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [visualizerActive, setVisualizerActive] = useState(false);
+  const [nextProgramImageIndex, setNextProgramImageIndex] = useState(0);
+  const [adsConfig, setAdsConfig] = useState({
+    enabled: DEFAULT_APP_CONFIG.ads_enabled,
+    clientId: DEFAULT_APP_CONFIG.adsense_client_id,
+    slot:
+      import.meta.env.VITE_ADSENSE_RADIO_SLOT ||
+      DEFAULT_APP_CONFIG.adsense_radio_slot,
+  });
 
   useEffect(() => {
     let mounted = true;
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     getPublishedProgramacion()
       .then((data) => {
@@ -93,7 +127,22 @@ const Radio = () => {
         if (mounted) setProgramacion([]);
       });
 
-    const timer = window.setInterval(() => setNow(new Date()), 60_000);
+    getAppConfig()
+      .then((config) => {
+        if (!mounted) return;
+
+        setAdsConfig({
+          enabled: config.ads_enabled,
+          clientId: config.adsense_client_id,
+          slot:
+            config.adsense_radio_slot ||
+            import.meta.env.VITE_ADSENSE_RADIO_SLOT ||
+            "",
+        });
+      })
+      .catch((error) => console.error("Radio config error:", error));
+
+    const timer = window.setInterval(() => setNow(new Date()), 1_000);
 
     return () => {
       mounted = false;
@@ -102,207 +151,343 @@ const Radio = () => {
   }, []);
 
   const schedule = programacion.length ? programacion : fallbackSchedule;
-  const currentProgram = useMemo(
-    () => schedule.find((program) => isProgramLive(program, now)) ?? null,
-    [now, schedule],
-  );
   const nextProgram = useMemo(
     () => getNextProgram(schedule, now),
     [now, schedule],
   );
+  const nextProgramImageUrl = nextProgram?.imagen_url ?? "";
+  const nextProgramImageCandidates = useMemo(
+    () => getProgramImageCandidates(nextProgramImageUrl),
+    [nextProgramImageUrl],
+  );
+  const activeNextProgramImage =
+    nextProgramImageCandidates[nextProgramImageIndex] ?? "";
+  const showNextProgramImage = Boolean(activeNextProgramImage);
+  const nextProgramTitle = nextProgram?.programa ?? "Programacion continua";
+  const nextProgramTime = nextProgram
+    ? formatTime(nextProgram.hora_inicio)
+    : "La Voz de Jesus";
+  const nextProgramDescription =
+    nextProgram?.descripcion || "La Voz de Jesus";
 
-  const programName = currentProgram?.programa ?? player.title;
-  const programTime = currentProgram
-    ? `${formatTime(currentProgram.hora_inicio)} - ${formatTime(
-        currentProgram.hora_fin,
-      )}`
-    : "Senal en vivo 24/7";
+  useEffect(() => {
+    setNextProgramImageIndex(0);
+  }, [nextProgramImageUrl]);
 
-  const goBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-      return;
-    }
-
-    navigate("/");
-  };
-
-  const shareRadio = async () => {
-    const url = window.location.href;
-    const text = "Escucha La Voz de Jesus en vivo";
-
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "La Voz de Jesus", text, url });
-        return;
-      }
-
-      await navigator.clipboard.writeText(url);
-    } catch (error) {
-      console.error("No se pudo compartir la radio:", error);
-    }
-  };
+  const songTitle =
+    player.title && player.title !== player.defaultTitle
+      ? player.title
+      : player.defaultSubtitle;
+  const artistName = player.artist || player.defaultTitle;
+  const coverImage = player.artworkUrl || player.playerImageUrl || monstranceImage;
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-navy-deep text-foreground">
-      <header className="border-b border-gold/15 bg-navy-deep/95">
-        <div className="mx-auto flex h-20 max-w-[1500px] items-center justify-between px-4 sm:px-6 xl:px-8">
+    <div className="relative min-h-screen overflow-x-hidden bg-navy-deep text-foreground">
+      <div className="fixed inset-0">
+        <img
+          src={coverImage}
+          alt=""
+          className="h-full w-full scale-[1.42] object-cover opacity-58 blur-3xl saturate-125"
+        />
+        <img
+          src={coverImage}
+          alt=""
+          className="absolute left-1/2 top-[36%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full object-cover opacity-18 blur-2xl xl:h-[760px] xl:w-[760px]"
+        />
+        <div className="absolute inset-0 bg-navy-deep/62" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,transparent_0%,hsl(var(--gold)/0.16)_18%,transparent_45%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,hsl(var(--navy-deep)/0.42)_58%,hsl(var(--navy-deep)/0.9)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-black/65 to-transparent" />
+      </div>
+
+      <aside
+        className={`fixed left-0 top-0 z-40 h-full w-[260px] border-r border-gold/15 bg-navy-deep/88 p-5 shadow-deep backdrop-blur transition-transform duration-300 xl:translate-x-0 ${
+          menuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <Logo size="md" className="mb-8" />
+        <nav className="space-y-3">
+          {sideLinks.map((item) => (
+            <Link
+              key={item.label}
+              to={item.to}
+              onClick={() => {
+                setMenuOpen(false);
+                if (item.to === "/" || item.to === "/radio") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
+              className="flex h-12 items-center gap-3 rounded-full bg-foreground/90 px-4 text-sm font-bold text-navy-deep transition hover:bg-gradient-gold"
+            >
+              <item.icon className="h-4 w-4 text-gold-deep" />
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </aside>
+
+      <main className="relative z-10 flex min-h-screen flex-col px-4 pb-28 pt-5 xl:ml-[260px] xl:pb-0">
+        <header className="mx-auto flex w-full max-w-[1280px] items-center justify-end">
           <button
             type="button"
-            onClick={goBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full gold-border text-gold transition hover:bg-gold/10"
-            aria-label="Volver"
+            onClick={() => setMenuOpen((current) => !current)}
+            className="flex h-11 w-11 items-center justify-center rounded-full gold-border bg-navy-deep/55 text-gold shadow-deep backdrop-blur transition hover:bg-gold/10"
+            aria-label={menuOpen ? "Cerrar menu" : "Abrir menu"}
           >
-            <ArrowLeft className="h-5 w-5" />
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
+        </header>
 
-          <Logo size="sm" className="justify-center" />
-
-          <Link
-            to="/programacion"
-            className="inline-flex h-10 items-center gap-2 rounded-lg gold-border px-3 text-[11px] font-extrabold uppercase text-gold transition hover:bg-gold/10 sm:px-4"
-          >
-            <CalendarDays className="h-4 w-4" />
-            <span className="hidden sm:inline">Programacion</span>
-          </Link>
-        </div>
-      </header>
-
-      <main className="mx-auto grid max-w-[1500px] gap-6 px-4 pb-32 pt-6 sm:px-6 xl:grid-cols-[0.8fr_1.15fr_0.8fr] xl:px-8 xl:pb-12 xl:pt-10">
-        <section className="hidden rounded-2xl gold-border bg-navy-deep/45 p-6 shadow-deep xl:block">
-          <div className="mb-3 text-xs font-extrabold uppercase tracking-[0.2em] text-gold">
-            La Voz de Jesus
-          </div>
-          <h1 className="text-3xl font-bold leading-tight">
-            Tu emisora catolica en vivo
-          </h1>
-          <p className="mt-4 text-sm leading-relaxed text-foreground/72">
-            Una experiencia sencilla para orar, escuchar y permanecer conectado
-            con nuestra comunidad.
-          </p>
-        </section>
-
-        <section className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center rounded-2xl gold-border bg-navy-deep/45 p-5 text-center shadow-deep sm:p-8 xl:min-h-[640px]">
-          <div className="relative mb-7 flex h-52 w-52 items-center justify-center rounded-full sm:h-64 sm:w-64">
-            <div className="absolute inset-0 rounded-full bg-gradient-radial-gold opacity-70 blur-sm shimmer" />
-            <div className="absolute inset-6 rounded-full border border-gold/30 bg-black/25" />
-            <img
-              src={monstranceImage}
-              alt=""
-              className="relative h-40 w-40 rounded-full object-cover shadow-deep sm:h-52 sm:w-52"
-            />
-          </div>
-
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-gold/35 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.18em] text-gold">
-            <span className="h-2 w-2 rounded-full bg-gold live-pulse" />
-            {statusLabel[player.status]}
-          </div>
-
-          <h2 className="max-w-xl text-3xl font-bold leading-tight sm:text-4xl">
-            {programName}
-          </h2>
-          <p className="mt-2 text-sm font-semibold text-gold">{programTime}</p>
-          {player.artist && (
-            <p className="mt-2 text-sm text-foreground/60">{player.artist}</p>
-          )}
-
-          <button
-            type="button"
-            onClick={player.toggle}
-            className="mt-8 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-gold text-navy-deep shadow-gold transition hover:scale-[1.02] active:scale-[0.98]"
-            aria-label={player.isPlaying ? "Pausar" : "Reproducir"}
-          >
-            {player.status === "connecting" ? (
-              <Loader2 className="h-8 w-8 animate-spin" />
-            ) : player.isPlaying ? (
-              <Pause className="h-9 w-9 fill-current" />
-            ) : (
-              <Play className="ml-1 h-9 w-9 fill-current" />
+        <section className="mx-auto grid w-full max-w-[1280px] flex-1 items-center gap-6 py-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:py-8">
+          <div className="relative isolate flex min-h-[calc(100svh-8.5rem)] flex-col items-center justify-start overflow-hidden rounded-[2rem] pt-0 text-center xl:min-h-[620px] xl:justify-center xl:pt-0">
+            {visualizerActive && (
+              <div
+                className={`radio-visualizer-bg ${
+                  player.isPlaying ? "radio-visualizer-bg--playing" : ""
+                }`}
+                aria-hidden="true"
+              />
             )}
-          </button>
 
-          <div className="mt-8 flex w-full max-w-sm items-center gap-3">
-            <Volume2 className="h-5 w-5 text-gold" />
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={player.volume}
-              onChange={(event) => player.setVolume(Number(event.target.value))}
-              className="w-full accent-gold"
-              aria-label="Volumen"
-            />
+            <div
+              className={`relative mb-4 -mt-2 flex h-[19rem] w-[19rem] items-center justify-center rounded-full sm:h-80 sm:w-80 xl:h-[360px] xl:w-[360px] ${
+                player.isPlaying ? "radio-cover-wave" : ""
+              }`}
+              style={
+                {
+                  "--radio-wave-volume": player.volume,
+                  "--radio-wave-scale": 1.02 + player.volume * 0.12,
+                } as CSSProperties
+              }
+            >
+              <div
+                className={`radio-cover-orbit ${
+                  player.isPlaying ? "radio-cover-orbit--playing" : ""
+                }`}
+              />
+              <img
+                src={coverImage}
+                alt={player.artworkUrl ? `Caratula de ${songTitle}` : ""}
+                className="relative h-[15.9rem] w-[15.9rem] rounded-full border-[3px] border-slate-100/55 object-cover shadow-deep sm:h-[13.5rem] sm:w-[13.5rem] xl:h-[252px] xl:w-[252px]"
+              />
+            </div>
+
+            <h1
+              className="radio-track-title radio-readable-text relative max-w-[21rem] text-[1.45rem] font-extrabold leading-[1.08] sm:max-w-2xl sm:text-3xl xl:text-4xl"
+              title={songTitle}
+            >
+              {songTitle}
+            </h1>
+            <p
+              className="radio-artist-text relative mt-1.5 max-w-[20rem] truncate text-sm font-semibold leading-tight text-gold sm:max-w-xl sm:text-base"
+              title={artistName}
+            >
+              {artistName}
+            </p>
+
+            <div className="relative mt-5 flex w-[min(100%,20rem)] items-center gap-2 px-1 sm:w-full sm:max-w-xl sm:gap-3">
+              <button
+                type="button"
+                onClick={() => player.setVolume(0)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white drop-shadow transition hover:bg-white/10 active:scale-95"
+                aria-label="Silenciar"
+              >
+                <VolumeX className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={player.volume}
+                style={
+                  {
+                    "--radio-volume-percent": `${player.volume * 100}%`,
+                  } as CSSProperties
+                }
+                onChange={(event) =>
+                  player.setVolume(Number(event.target.value))
+                }
+                className="radio-volume-slider w-full"
+                aria-label="Volumen"
+              />
+              <span className="w-10 text-right text-sm font-extrabold text-white drop-shadow sm:w-12 sm:text-lg">
+                  {Math.round(player.volume * 100)}%
+              </span>
+              <button
+                type="button"
+                onClick={() => player.setVolume(1)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white drop-shadow transition hover:bg-white/10 active:scale-95"
+                aria-label="Volumen maximo"
+              >
+                <Volume2 className="h-6 w-6 sm:h-7 sm:w-7" />
+              </button>
+            </div>
+
+            <div className="relative mt-7 grid w-[min(100%,20rem)] grid-cols-[5rem_1fr_5rem] items-center justify-items-center gap-0 sm:w-full sm:max-w-md sm:grid-cols-[6rem_1fr_6rem]">
+              <div className="flex w-full justify-center">
+                <button
+                  type="button"
+                  onClick={() => setVisualizerActive((current) => !current)}
+                  className={`radio-bars-toggle flex h-14 w-14 items-end justify-center gap-1 rounded-2xl p-3 text-white transition active:scale-95 ${
+                    visualizerActive
+                      ? "radio-bars-toggle--active bg-white/18 shadow-[0_0_28px_rgba(255,255,255,0.18)] backdrop-blur"
+                      : "hover:bg-white/10"
+                  }`}
+                  aria-label={
+                    visualizerActive
+                      ? "Ocultar visualizador"
+                      : "Mostrar visualizador"
+                  }
+                  aria-pressed={visualizerActive}
+                >
+                  {[0, 1, 2, 3].map((bar) => (
+                    <span
+                      key={bar}
+                      className={`radio-bars-toggle__bar ${
+                        visualizerActive && player.isPlaying
+                          ? "radio-bars-toggle__bar--playing"
+                          : ""
+                      }`}
+                      style={
+                        {
+                          "--bar-index": bar,
+                        } as CSSProperties
+                      }
+                    />
+                  ))}
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={player.toggle}
+                className="flex h-24 w-24 items-center justify-center rounded-full bg-white text-gold-deep shadow-[0_0_45px_rgba(212,165,76,0.4)] transition hover:scale-[1.03] active:scale-[0.98] sm:h-28 sm:w-28"
+                aria-label={player.isPlaying ? "Pausar" : "Reproducir"}
+              >
+                {player.status === "connecting" ? (
+                  <Loader2 className="h-10 w-10 animate-spin" />
+                ) : player.isPlaying ? (
+                  <Pause className="h-12 w-12 fill-current" />
+                ) : (
+                  <Play className="ml-2 h-14 w-14 fill-current" />
+                )}
+              </button>
+
+              <div className="flex w-full justify-center">
+                <span
+                  className={`inline-flex items-center gap-1 rounded-md border border-white/45 px-2 py-1 text-xs font-extrabold uppercase text-white ${
+                    player.isPlaying ? "radio-live-blink" : ""
+                  }`}
+                >
+                  <RadioIcon className="h-4 w-4" />
+                  Live
+                </span>
+              </div>
+            </div>
           </div>
 
-          <button
-            type="button"
-            onClick={shareRadio}
-            className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-foreground/65 transition hover:text-gold"
-          >
-            <Share2 className="h-4 w-4" />
-            Compartir
-          </button>
+          <aside className="-mt-4 scroll-mt-5 space-y-4 pb-28 sm:-mt-2 xl:mt-0 xl:pb-0">
+            <button
+              type="button"
+              onClick={() => navigate("/programacion")}
+              className="group w-full rounded-2xl border border-gold/28 bg-black/42 p-4 text-left shadow-deep backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-gold/50 hover:bg-black/52 active:scale-[0.99] xl:p-5"
+            >
+              <div className="mb-3 text-[11px] font-extrabold uppercase tracking-[0.22em] text-gold/90">
+                Sigue despues
+              </div>
+
+              <div className="flex min-h-[82px] items-center gap-3 xl:gap-4">
+                <div className="relative h-[74px] w-[74px] shrink-0 overflow-hidden rounded-full border border-gold/35 bg-black shadow-[0_14px_34px_rgba(0,0,0,0.55)] xl:h-20 xl:w-20">
+                  <img
+                    src={activeNextProgramImage || monstranceImage}
+                    alt=""
+                    className="h-full w-full object-cover opacity-90"
+                    onError={() =>
+                      setNextProgramImageIndex((current) =>
+                        current + 1 < nextProgramImageCandidates.length
+                          ? current + 1
+                          : current,
+                      )
+                    }
+                  />
+                  <div className="absolute inset-0 rounded-full bg-black/12 ring-1 ring-white/8" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <h2 className="truncate text-base font-extrabold leading-tight text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.55)] xl:text-lg">
+                    {nextProgramTitle}
+                  </h2>
+                  <p className="mt-1 text-sm font-extrabold text-gold-bright drop-shadow-[0_1px_1px_rgba(0,0,0,0.55)]">
+                    {nextProgramTime}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-xs font-medium leading-snug text-foreground/76 xl:text-sm">
+                    {nextProgramDescription}
+                  </p>
+                </div>
+
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/45 text-gold transition group-hover:bg-gold/10 group-hover:text-gold-bright">
+                  <ChevronRight className="h-5 w-5" />
+                </span>
+              </div>
+            </button>
+
+            <section className="rounded-2xl gold-border bg-navy-deep/60 p-5 shadow-deep backdrop-blur">
+              <div className="mb-4 flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.2em] text-gold">
+                <Headphones className="h-4 w-4" />
+                Accesos rapidos
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {sideLinks.slice(2, 6).map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className="rounded-xl gold-border px-3 py-3 text-center text-xs font-bold uppercase text-foreground/75 transition hover:bg-gold/10 hover:text-gold"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            <section className="overflow-hidden rounded-2xl gold-border bg-navy-deep/60 p-4 text-center shadow-deep backdrop-blur xl:min-h-[90px]">
+              <AdsenseAd
+                enabled={adsConfig.enabled}
+                clientId={adsConfig.clientId}
+                slot={adsConfig.slot}
+                format="rectangle"
+                fullWidthResponsive
+                className="min-h-[90px]"
+                fallback={
+                  <div>
+                    <div className="text-xs font-extrabold uppercase tracking-wide text-foreground/75">
+                      Espacio publicitario
+                    </div>
+                    <div className="mt-2 text-2xl font-bold">Tu marca aqui</div>
+                    <div className="mt-1 text-xs text-foreground/60">
+                      Llega a nuestra comunidad
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => navigate("/contacto")}
+                      className="mt-4 rounded-lg bg-gradient-gold px-4 py-2 text-xs font-bold text-navy-deep shadow-gold"
+                    >
+                      Anunciate
+                    </button>
+                  </div>
+                }
+              />
+            </section>
+
+            <section className="hidden rounded-full bg-white px-5 py-2 text-center text-2xl font-bold text-red-500 shadow-deep xl:block">
+              <Clock3 className="mr-2 inline h-5 w-5 text-red-500" />
+              {now.toLocaleTimeString("es-CO")}
+            </section>
+          </aside>
         </section>
 
-        <aside className="space-y-4">
-          <section className="rounded-2xl gold-border bg-navy-deep/45 p-5 shadow-deep">
-            <div className="mb-2 text-xs font-extrabold uppercase tracking-[0.2em] text-gold">
-              Sigue despues
-            </div>
-            <h3 className="text-xl font-bold">
-              {nextProgram?.programa ?? "Programacion continua"}
-            </h3>
-            <p className="mt-2 text-sm font-semibold text-gold">
-              {nextProgram ? formatTime(nextProgram.hora_inicio) : "24/7"}
-            </p>
-          </section>
-
-          <section className="rounded-2xl gold-border bg-navy-deep/45 p-5 shadow-deep">
-            <div className="mb-4 flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.2em] text-gold">
-              <Headphones className="h-4 w-4" />
-              Accesos rapidos
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {quickLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.to}
-                  className="rounded-xl gold-border px-3 py-3 text-center text-xs font-bold uppercase text-foreground/75 transition hover:bg-gold/10 hover:text-gold"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          <section className="overflow-hidden rounded-2xl gold-border bg-navy-deep/45 p-4 text-center shadow-deep xl:min-h-[90px]">
-            <AdsenseAd
-              slot={RADIO_AD_SLOT}
-              format="rectangle"
-              fullWidthResponsive
-              className="min-h-[90px]"
-              fallback={
-                <div>
-                  <div className="text-xs font-extrabold uppercase tracking-wide text-foreground/75">
-                    Espacio publicitario
-                  </div>
-                  <div className="mt-2 text-2xl font-bold">Tu marca aqui</div>
-                  <div className="mt-1 text-xs text-foreground/60">
-                    Llega a nuestra comunidad
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => navigate("/contacto")}
-                    className="mt-4 rounded-lg bg-gradient-gold px-4 py-2 text-xs font-bold text-navy-deep shadow-gold"
-                  >
-                    Anunciate
-                  </button>
-                </div>
-              }
-            />
-          </section>
-        </aside>
+        <footer className="hidden border-t border-white/10 py-3 text-center text-xs text-foreground/75 xl:block">
+          La Voz de Jesus - Radio Catolica 24/7
+        </footer>
       </main>
 
       <BottomNav activeLabel="Radio" />

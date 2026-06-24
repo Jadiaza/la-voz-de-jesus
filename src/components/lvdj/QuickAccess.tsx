@@ -80,10 +80,14 @@ export const QuickAccess = ({ compact = false }: { compact?: boolean }) => (
             <img
               src={item.image}
               alt={item.label}
-              className="relative h-12 w-12 object-contain"
+              className="relative h-11 w-11 object-contain"
             />
 
-            <span className="relative whitespace-pre-line text-center text-[10px] font-medium leading-tight text-foreground/85">
+            <span
+              className={`relative whitespace-pre-line text-center text-[10px] font-medium leading-tight text-foreground/85 ${
+                item.label === "Programacion" ? "-mt-1 text-[9.5px]" : ""
+              }`}
+            >
               {item.label}
             </span>
           </>

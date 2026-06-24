@@ -77,7 +77,7 @@ export const MobileHome = () => {
         </section>
 
         <section className="px-4 mt-3 pb-28">
-          <ProgramCard />
+          <ProgramCard showAction={false} />
         </section>
       </main>
 

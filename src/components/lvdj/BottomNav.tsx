@@ -42,6 +42,11 @@ export const BottomNav = ({
               <Link
                 key={item.label}
                 to={item.to}
+                onClick={() => {
+                  if (item.to === "/" || item.to === "/radio") {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
                 className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1 py-1"
               >
                 <item.icon

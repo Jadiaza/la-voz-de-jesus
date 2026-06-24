@@ -23,7 +23,9 @@ import { Logo } from "./Logo";
 import { ProgramHeroCard, Programa } from "./ProgramHeroCard";
 import { DaySchedule, WeeklySchedule } from "./WeeklySchedule";
 import {
+  DEFAULT_APP_CONFIG,
   ProgramacionRadio,
+  getAppConfig,
   getPublishedProgramacion,
 } from "@/services/sheetsService";
 import {
@@ -110,14 +112,12 @@ const fallbackPrograms: Programa[] = [
 
 const desktopLinks = [
   { label: "Inicio", icon: Home, to: "/" },
-  { label: "Radio en vivo", icon: Radio, to: "/" },
+  { label: "Radio en vivo", icon: Radio, to: "/radio" },
   { label: "Oracion", icon: Mic, to: "/" },
   { label: "Programas", icon: CalendarDays, to: "/programacion", active: true },
   { label: "Recursos", icon: BookOpen, to: "/" },
   { label: "Comunidad", icon: Users, to: "/" },
 ];
-
-const WHATSAPP_URL = "https://wa.me/";
 
 const sideLinks = [
   { label: "Programacion", icon: CalendarDays, to: "/programacion", active: true },
@@ -175,6 +175,9 @@ export const ProgramacionPage = () => {
   const [now, setNow] = useState(() => new Date());
   const [selectedProgram, setSelectedProgram] = useState<Programa | null>(null);
   const [showFullWeek, setShowFullWeek] = useState(false);
+  const [contactUrl, setContactUrl] = useState(
+    DEFAULT_APP_CONFIG.contact_whatsapp_url,
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -186,6 +189,12 @@ export const ProgramacionPage = () => {
       .catch(() => {
         if (mounted) setRemotePrograms([]);
       });
+
+    getAppConfig()
+      .then((config) => {
+        if (mounted) setContactUrl(config.contact_whatsapp_url);
+      })
+      .catch((error) => console.error("Programacion config error:", error));
 
     const timer = window.setInterval(() => setNow(new Date()), 60_000);
 
@@ -243,8 +252,8 @@ export const ProgramacionPage = () => {
   };
 
   const openContact = () => {
-    if (WHATSAPP_URL && WHATSAPP_URL !== "https://wa.me/") {
-      window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
+    if (contactUrl) {
+      window.open(contactUrl, "_blank", "noopener,noreferrer");
       return;
     }
 

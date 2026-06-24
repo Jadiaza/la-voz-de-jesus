@@ -11,6 +11,8 @@ const ADSENSE_CLIENT =
 
 interface AdsenseAdProps {
   slot?: string;
+  clientId?: string;
+  enabled?: boolean;
   className?: string;
   format?: "auto" | "horizontal" | "rectangle";
   fullWidthResponsive?: boolean;
@@ -19,13 +21,15 @@ interface AdsenseAdProps {
 
 export const AdsenseAd = ({
   slot,
+  clientId = ADSENSE_CLIENT,
+  enabled = true,
   className = "",
   format = "auto",
   fullWidthResponsive = true,
   fallback,
 }: AdsenseAdProps) => {
   useEffect(() => {
-    if (!slot) return;
+    if (!enabled || !slot) return;
 
     try {
       window.adsbygoogle = window.adsbygoogle || [];
@@ -33,9 +37,9 @@ export const AdsenseAd = ({
     } catch (error) {
       console.error("AdSense render error:", error);
     }
-  }, [slot]);
+  }, [enabled, slot]);
 
-  if (!slot) {
+  if (!enabled || !slot) {
     return <>{fallback}</>;
   }
 
@@ -43,7 +47,7 @@ export const AdsenseAd = ({
     <ins
       className={`adsbygoogle block ${className}`}
       style={{ display: "block" }}
-      data-ad-client={ADSENSE_CLIENT}
+      data-ad-client={clientId}
       data-ad-slot={slot}
       data-ad-format={format}
       data-full-width-responsive={fullWidthResponsive ? "true" : "false"}

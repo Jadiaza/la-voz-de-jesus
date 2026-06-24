@@ -88,6 +88,24 @@ export interface ProgramacionRadio {
   estado: EstadoContenido;
 }
 
+export interface AppConfig {
+  radio_stream_url: string;
+  radio_metadata_url: string;
+  radio_default_title: string;
+  radio_default_subtitle: string;
+  radio_player_image_url: string;
+  app_logo_url: string;
+  social_facebook_url: string;
+  social_instagram_url: string;
+  social_youtube_url: string;
+  contact_whatsapp_url: string;
+  contact_email: string;
+  ads_enabled: boolean;
+  adsense_client_id: string;
+  adsense_programacion_slot: string;
+  adsense_radio_slot: string;
+}
+
 const DEFAULT_LITURGIA_DIA_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7j7j9nNJ9DP7pFXM68yMrFUOan_pmUuGscDseMbkSWo4T1srKj2VsyUYE8XWnJlRpMAuR9QvQ2KVS/pub?gid=0&single=true&output=csv";
 
@@ -99,6 +117,29 @@ const DEFAULT_SANTO_DEL_DIA_CSV_URL =
 
 const DEFAULT_PROGRAMACION_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7j7j9nNJ9DP7pFXM68yMrFUOan_pmUuGscDseMbkSWo4T1srKj2VsyUYE8XWnJlRpMAuR9QvQ2KVS/pub?gid=175716214&single=true&output=csv";
+
+const DEFAULT_CONFIGURACION_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7j7j9nNJ9DP7pFXM68yMrFUOan_pmUuGscDseMbkSWo4T1srKj2VsyUYE8XWnJlRpMAuR9QvQ2KVS/pub?gid=746027598&single=true&output=csv";
+
+export const DEFAULT_APP_CONFIG: AppConfig = {
+  radio_stream_url: "https://stream.zeno.fm/phybdd3ph98uv",
+  radio_metadata_url:
+    "https://api.zeno.fm/mounts/metadata/subscribe/phybdd3ph98uv",
+  radio_default_title: "La Voz de Jesus",
+  radio_default_subtitle: "Conecta tu espiritu",
+  radio_player_image_url: "",
+  app_logo_url: "/logo.png",
+  social_facebook_url: "https://www.facebook.com/lavozdejesus.col/",
+  social_instagram_url: "https://www.instagram.com/lavozdejesus.co/",
+  social_youtube_url: "https://www.youtube.com/@lvjesusco",
+  contact_whatsapp_url:
+    "https://api.whatsapp.com/send?phone=573028375008&text=Hola%20escucho%20la%20La%20Voz%20de%20Jesus",
+  contact_email: "contacto@lavozdejesus.co",
+  ads_enabled: true,
+  adsense_client_id: "ca-pub-4848923962603353",
+  adsense_programacion_slot: "",
+  adsense_radio_slot: "",
+};
 
 /* ==========================================================================
    FUENTES CSV
@@ -123,6 +164,11 @@ const SANTO_DEL_DIA_CSV_URL =
 const PROGRAMACION_CSV_URL =
   (import.meta.env.VITE_PROGRAMACION_CSV_URL as string | undefined) ??
   DEFAULT_PROGRAMACION_CSV_URL;
+
+const CONFIGURACION_CSV_URL =
+  (import.meta.env.VITE_CONFIGURACION_CSV_URL as string | undefined) ??
+  (import.meta.env.VITE_CONFIGURACION_GENERAL_CSV_URL as string | undefined) ??
+  DEFAULT_CONFIGURACION_CSV_URL;
 
 const clean = (value: unknown) =>
   typeof value === "string" || typeof value === "number"
@@ -155,7 +201,7 @@ const normalizeImageUrl = (value: unknown) => {
   const driveId = getGoogleDriveId(raw);
 
   if (driveId) {
-    return `https://lh3.googleusercontent.com/d/${driveId}=s800`;
+    return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
   }
 
   return raw;
@@ -172,6 +218,18 @@ const normalizeAudioUrl = (value: unknown) => {
   }
 
   return raw;
+};
+
+const normalizeExternalUrl = (value: unknown) => {
+  const raw = clean(value);
+  const markdownLink = raw.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/i);
+
+  return normalizeImageUrl(markdownLink?.[2] ?? raw);
+};
+
+const normalizeBoolean = (value: unknown) => {
+  const raw = clean(value).toLowerCase();
+  return ["1", "true", "si", "sí", "yes", "activo", "publicado"].includes(raw);
 };
 
 export const getTodayISO = () => new Date().toLocaleDateString("sv-SE");
@@ -318,16 +376,36 @@ const normalizeSanto = (row: Partial<SantoDelDia>): SantoDelDia => {
 
 const normalizeProgramacion = (
   row: Partial<ProgramacionRadio>,
-): ProgramacionRadio => ({
-  id: clean(row.id),
-  dia_semana: clean(row.dia_semana),
-  hora_inicio: clean(row.hora_inicio),
-  hora_fin: clean(row.hora_fin),
-  programa: clean(row.programa),
-  descripcion: preserveText(row.descripcion),
-  imagen_url: normalizeImageUrl(row.imagen_url),
-  estado: clean(row.estado).toLowerCase() as EstadoContenido,
-});
+): ProgramacionRadio => {
+  const rawRow = row as Partial<ProgramacionRadio> &
+    Record<string, unknown> & {
+      image_url?: unknown;
+      imageurl?: unknown;
+      imageUrl?: unknown;
+      imagen?: unknown;
+      imagen_programa?: unknown;
+      foto_url?: unknown;
+    };
+
+  return {
+    id: clean(row.id),
+    dia_semana: clean(row.dia_semana),
+    hora_inicio: clean(row.hora_inicio),
+    hora_fin: clean(row.hora_fin),
+    programa: clean(row.programa),
+    descripcion: preserveText(row.descripcion),
+    imagen_url: normalizeExternalUrl(
+      row.imagen_url ||
+        rawRow.image_url ||
+        rawRow.imageurl ||
+        rawRow.imageUrl ||
+        rawRow.imagen ||
+        rawRow.imagen_programa ||
+        rawRow.foto_url,
+    ),
+    estado: clean(row.estado).toLowerCase() as EstadoContenido,
+  };
+};
 
 /* ==========================================================================
    API PUBLICA DE CONSULTA
@@ -464,13 +542,80 @@ export async function getFrasesCatolicas() {
   return getSheetData("FRASES_CATOLICAS");
 }
 
-export async function getConfiguracion() {
-  return getSheetData<{ clave: string; valor: string }>("CONFIGURACION_GENERAL");
+export async function getConfiguracion(): Promise<Record<string, string>> {
+  if (!CONFIGURACION_CSV_URL) return {};
+
+  const rows = await getCsvRows<Record<string, string>>(CONFIGURACION_CSV_URL);
+  const firstRow = rows[0] ?? {};
+
+  if ("clave" in firstRow && "valor" in firstRow) {
+    return rows.reduce<Record<string, string>>((accumulator, row) => {
+      const key = clean(row.clave);
+      if (key) accumulator[key] = clean(row.valor);
+      return accumulator;
+    }, {});
+  }
+
+  return Object.entries(firstRow).reduce<Record<string, string>>(
+    (accumulator, [key, value]) => {
+      accumulator[key] = clean(value);
+      return accumulator;
+    },
+    {},
+  );
 }
 
 export async function getConfigValue(key: string) {
   const config = await getConfiguracion();
-  return config.find((item) => clean(item.clave) === key)?.valor ?? "";
+  return config[key] ?? "";
+}
+
+export async function getAppConfig(): Promise<AppConfig> {
+  const config = await getConfiguracion();
+
+  return {
+    radio_stream_url:
+      normalizeExternalUrl(config.radio_stream_url) ||
+      DEFAULT_APP_CONFIG.radio_stream_url,
+    radio_metadata_url:
+      normalizeExternalUrl(config.radio_metadata_url) ||
+      DEFAULT_APP_CONFIG.radio_metadata_url,
+    radio_default_title:
+      clean(config.radio_default_title) || DEFAULT_APP_CONFIG.radio_default_title,
+    radio_default_subtitle:
+      clean(config.radio_default_subtitle) ||
+      DEFAULT_APP_CONFIG.radio_default_subtitle,
+    radio_player_image_url:
+      normalizeExternalUrl(config.radio_player_image_url) ||
+      normalizeExternalUrl(config.app_logo_url) ||
+      DEFAULT_APP_CONFIG.radio_player_image_url,
+    app_logo_url:
+      normalizeExternalUrl(config.app_logo_url) || DEFAULT_APP_CONFIG.app_logo_url,
+    social_facebook_url:
+      normalizeExternalUrl(config.social_facebook_url) ||
+      DEFAULT_APP_CONFIG.social_facebook_url,
+    social_instagram_url:
+      normalizeExternalUrl(config.social_instagram_url) ||
+      DEFAULT_APP_CONFIG.social_instagram_url,
+    social_youtube_url:
+      normalizeExternalUrl(config.social_youtube_url) ||
+      DEFAULT_APP_CONFIG.social_youtube_url,
+    contact_whatsapp_url:
+      normalizeExternalUrl(config.contact_whatsapp_url) ||
+      DEFAULT_APP_CONFIG.contact_whatsapp_url,
+    contact_email: clean(config.contact_email) || DEFAULT_APP_CONFIG.contact_email,
+    ads_enabled:
+      config.ads_enabled === undefined
+        ? DEFAULT_APP_CONFIG.ads_enabled
+        : normalizeBoolean(config.ads_enabled),
+    adsense_client_id:
+      clean(config.adsense_client_id) || DEFAULT_APP_CONFIG.adsense_client_id,
+    adsense_programacion_slot:
+      clean(config.adsense_programacion_slot) ||
+      DEFAULT_APP_CONFIG.adsense_programacion_slot,
+    adsense_radio_slot:
+      clean(config.adsense_radio_slot) || DEFAULT_APP_CONFIG.adsense_radio_slot,
+  };
 }
 
 /* ==========================================================================
