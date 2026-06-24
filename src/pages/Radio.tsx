@@ -240,8 +240,8 @@ const Radio = () => {
           </button>
         </header>
 
-        <section className="radio-content grid flex-1 items-center gap-6 py-3 xl:w-full xl:max-w-[1280px] xl:grid-cols-[minmax(0,1fr)_320px] xl:py-8">
-          <div className="relative isolate flex min-h-[calc(100dvh-8.5rem)] w-full flex-col items-center justify-start overflow-hidden rounded-[2rem] pt-0 text-center xl:min-h-[620px] xl:justify-center xl:pt-0">
+        <section className="radio-content grid flex-1 items-center gap-4 py-3 xl:w-full xl:max-w-[1280px] xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-6 xl:py-8">
+          <div className="player-section relative isolate flex min-h-[calc(100dvh-8.5rem)] w-full flex-col items-center justify-start overflow-hidden rounded-[2rem] pt-0 text-center xl:min-h-[620px] xl:justify-center xl:pt-0">
             {visualizerActive && (
               <div
                 className={`radio-visualizer-bg ${
@@ -292,7 +292,7 @@ const Radio = () => {
               {artistName}
             </p>
 
-            <div className="relative mt-5 flex w-full max-w-[360px] items-center gap-2 px-1 sm:max-w-xl sm:gap-3">
+            <div className="player-controls radio-volume-control relative mt-5 flex items-center gap-2 px-1 sm:gap-3">
               <button
                 type="button"
                 onClick={() => player.setVolume(0)}
@@ -331,12 +331,12 @@ const Radio = () => {
               </button>
             </div>
 
-            <div className="relative mt-7 grid w-full max-w-[360px] grid-cols-[5rem_1fr_5rem] items-center justify-items-center gap-0 sm:max-w-md sm:grid-cols-[6rem_1fr_6rem]">
+            <div className="player-controls radio-controls-row relative mt-7 grid grid-cols-[5rem_1fr_5rem] items-center justify-items-center gap-0 sm:grid-cols-[6rem_1fr_6rem]">
               <div className="flex w-full justify-center">
                 <button
                   type="button"
                   onClick={() => setVisualizerActive((current) => !current)}
-                  className={`radio-bars-toggle flex h-14 w-14 items-end justify-center gap-1 rounded-2xl p-3 text-white transition active:scale-95 ${
+                  className={`audio-bars radio-bars-toggle flex h-14 w-14 items-end justify-center gap-1 rounded-2xl p-3 text-white transition active:scale-95 ${
                     visualizerActive
                       ? "radio-bars-toggle--active bg-white/18 shadow-[0_0_28px_rgba(255,255,255,0.18)] backdrop-blur"
                       : "hover:bg-white/10"
@@ -368,7 +368,7 @@ const Radio = () => {
               <button
                 type="button"
                 onClick={player.toggle}
-                className="flex h-24 w-24 items-center justify-center rounded-full bg-white text-gold-deep shadow-[0_0_45px_rgba(212,165,76,0.4)] transition hover:scale-[1.03] active:scale-[0.98] sm:h-28 sm:w-28"
+                className="play-button flex items-center justify-center rounded-full bg-white text-gold-deep shadow-[0_0_45px_rgba(212,165,76,0.4)] transition hover:scale-[1.03] active:scale-[0.98]"
                 aria-label={player.isPlaying ? "Pausar" : "Reproducir"}
               >
                 {player.status === "connecting" ? (
@@ -382,7 +382,7 @@ const Radio = () => {
 
               <div className="flex w-full justify-center">
                 <span
-                  className={`inline-flex items-center gap-1 rounded-md border border-white/45 px-2 py-1 text-xs font-extrabold uppercase text-white ${
+                  className={`live-badge inline-flex items-center gap-1 rounded-md border border-white/45 px-2 py-1 text-xs font-extrabold uppercase text-white ${
                     player.isPlaying ? "radio-live-blink" : ""
                   }`}
                 >
@@ -397,14 +397,14 @@ const Radio = () => {
             <button
               type="button"
               onClick={() => navigate("/programacion")}
-              className="group w-full rounded-2xl border border-gold/28 bg-black/42 p-3.5 text-left shadow-deep backdrop-blur-xl transition hover:border-gold/50 hover:bg-black/52 active:scale-[0.99] sm:p-4 xl:p-5"
+              className="next-program-card group w-full border border-gold/28 bg-black/42 text-left shadow-deep backdrop-blur-xl transition hover:border-gold/50 hover:bg-black/52 active:scale-[0.99]"
             >
               <div className="mb-3 text-[11px] font-extrabold uppercase tracking-[0.22em] text-gold/90">
                 Sigue despues
               </div>
 
               <div className="flex min-h-[82px] items-center gap-3 xl:gap-4">
-                <div className="relative h-[66px] w-[66px] shrink-0 overflow-hidden rounded-full border border-gold/35 bg-black shadow-[0_14px_34px_rgba(0,0,0,0.55)] sm:h-[74px] sm:w-[74px] xl:h-20 xl:w-20">
+                <div className="next-program-avatar relative shrink-0 overflow-hidden rounded-full border border-gold/35 bg-black shadow-[0_14px_34px_rgba(0,0,0,0.55)]">
                   <img
                     src={activeNextProgramImage || monstranceImage}
                     alt=""
@@ -421,34 +421,34 @@ const Radio = () => {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-base font-extrabold leading-tight text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.55)] xl:text-lg">
+                  <h2 className="next-program-title truncate font-extrabold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.55)]">
                     {nextProgramTitle}
                   </h2>
-                  <p className="mt-1 text-sm font-extrabold text-gold-bright drop-shadow-[0_1px_1px_rgba(0,0,0,0.55)]">
+                  <p className="next-program-time text-sm font-extrabold text-gold-bright drop-shadow-[0_1px_1px_rgba(0,0,0,0.55)]">
                     {nextProgramTime}
                   </p>
-                  <p className="mt-1 line-clamp-2 text-xs font-medium leading-snug text-foreground/76 xl:text-sm">
+                  <p className="next-program-description line-clamp-2 text-xs font-medium leading-snug text-foreground/76 xl:text-sm">
                     {nextProgramDescription}
                   </p>
                 </div>
 
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/45 text-gold transition group-hover:bg-gold/10 group-hover:text-gold-bright sm:h-10 sm:w-10">
+                <span className="next-program-arrow flex shrink-0 items-center justify-center rounded-full border border-gold/45 text-gold transition group-hover:bg-gold/10 group-hover:text-gold-bright">
                   <ChevronRight className="h-5 w-5" />
                 </span>
               </div>
             </button>
 
-            <section className="rounded-2xl gold-border bg-navy-deep/60 p-5 shadow-deep backdrop-blur">
+            <section className="quick-access-card gold-border bg-navy-deep/60 shadow-deep backdrop-blur">
               <div className="mb-4 flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.2em] text-gold">
                 <Headphones className="h-4 w-4" />
                 Accesos rapidos
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="quick-access-grid grid grid-cols-2 gap-3">
                 {sideLinks.slice(2, 6).map((item) => (
                   <Link
                     key={item.label}
                     to={item.to}
-                    className="rounded-xl gold-border px-3 py-3 text-center text-xs font-bold uppercase text-foreground/75 transition hover:bg-gold/10 hover:text-gold"
+                    className="quick-access-button gold-border px-3 text-center font-bold uppercase text-foreground/75 transition hover:bg-gold/10 hover:text-gold"
                   >
                     {item.label}
                   </Link>
@@ -456,7 +456,7 @@ const Radio = () => {
               </div>
             </section>
 
-            <section className="overflow-hidden rounded-2xl gold-border bg-navy-deep/60 p-4 text-center shadow-deep backdrop-blur xl:min-h-[90px]">
+            <section className="radio-extra-card overflow-hidden gold-border bg-navy-deep/60 p-4 text-center shadow-deep backdrop-blur xl:min-h-[90px]">
               <AdsenseAd
                 enabled={adsConfig.enabled}
                 clientId={adsConfig.clientId}
@@ -469,7 +469,7 @@ const Radio = () => {
                     <div className="text-xs font-extrabold uppercase tracking-wide text-foreground/75">
                       Espacio publicitario
                     </div>
-                    <div className="mt-2 text-2xl font-bold">Tu marca aqui</div>
+                    <div className="mt-2 text-2xl font-bold">Paute aqui</div>
                     <div className="mt-1 text-xs text-foreground/60">
                       Llega a nuestra comunidad
                     </div>
@@ -478,7 +478,7 @@ const Radio = () => {
                       onClick={() => navigate("/contacto")}
                       className="mt-4 rounded-lg bg-gradient-gold px-4 py-2 text-xs font-bold text-navy-deep shadow-gold"
                     >
-                      Anunciate
+                      Paute aqui
                     </button>
                   </div>
                 }

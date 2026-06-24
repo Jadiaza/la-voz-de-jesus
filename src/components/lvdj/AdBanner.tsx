@@ -16,7 +16,7 @@ const AdPlaceholder = () => (
 
       <div className="relative z-10 min-w-0 text-center sm:text-left lg:text-center">
         <div className="truncate text-2xl font-extrabold text-foreground xl:text-4xl">
-          Tu marca aqui
+          Paute aqui
         </div>
         <div className="mt-1 text-xs text-foreground/70 xl:text-base">
           Llega a nuestra comunidad
@@ -28,7 +28,7 @@ const AdPlaceholder = () => (
           type="button"
           className="rounded-lg bg-gradient-gold px-4 py-2 text-xs font-bold text-navy-deep shadow-gold xl:px-5 xl:py-2.5 xl:text-sm"
         >
-          Anunciate
+          Paute aqui
         </button>
         <div className="hidden items-center gap-1 text-sm font-bold text-foreground/80 xl:flex">
           <Zap className="h-4 w-4 fill-gold text-gold" />
