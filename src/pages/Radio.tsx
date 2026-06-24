@@ -117,7 +117,7 @@ const Radio = () => {
   useEffect(() => {
     let mounted = true;
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ left: 0, top: 0, behavior: "auto" });
 
     getPublishedProgramacion()
       .then((data) => {
@@ -182,18 +182,20 @@ const Radio = () => {
   const coverImage = player.artworkUrl || player.playerImageUrl || monstranceImage;
 
   return (
-    <div className="relative min-h-[100dvh] w-full max-w-full overflow-x-hidden bg-navy-deep text-foreground">
+    <div className="radio-page relative touch-pan-y overscroll-x-none bg-navy-deep text-foreground">
       <div className="fixed inset-0 overflow-hidden">
         <img
           src={coverImage}
           alt=""
           className="h-full w-full scale-[1.42] object-cover opacity-58 blur-3xl saturate-125"
         />
-        <img
-          src={coverImage}
-          alt=""
-          className="absolute left-1/2 top-[36%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full object-cover opacity-18 blur-2xl xl:h-[760px] xl:w-[760px]"
-        />
+        <div className="absolute inset-x-0 top-[36%] flex justify-center">
+          <img
+            src={coverImage}
+            alt=""
+            className="h-[520px] w-[520px] rounded-full object-cover opacity-18 blur-2xl xl:h-[760px] xl:w-[760px]"
+          />
+        </div>
         <div className="absolute inset-0 bg-navy-deep/62" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,transparent_0%,hsl(var(--gold)/0.16)_18%,transparent_45%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,hsl(var(--navy-deep)/0.42)_58%,hsl(var(--navy-deep)/0.9)_100%)]" />
@@ -201,8 +203,8 @@ const Radio = () => {
       </div>
 
       <aside
-        className={`fixed left-0 top-0 z-40 h-full w-[260px] border-r border-gold/15 bg-navy-deep/88 p-5 shadow-deep backdrop-blur transition-transform duration-300 xl:block xl:translate-x-0 ${
-          menuOpen ? "block translate-x-0" : "hidden -translate-x-full"
+        className={`fixed left-0 top-0 z-40 h-full w-[260px] border-r border-gold/15 bg-navy-deep/88 p-5 shadow-deep backdrop-blur xl:block ${
+          menuOpen ? "block" : "hidden"
         }`}
       >
         <Logo size="md" className="mb-8" />
@@ -226,8 +228,8 @@ const Radio = () => {
         </nav>
       </aside>
 
-      <main className="relative z-10 flex min-h-[100dvh] w-full max-w-full flex-col items-center overflow-x-hidden px-4 pb-28 pt-5 xl:ml-[260px] xl:items-stretch xl:pb-0">
-        <header className="mx-auto flex w-full max-w-[430px] items-center justify-end xl:max-w-[1280px]">
+      <main className="relative z-10 flex min-h-[100dvh] w-full max-w-full touch-pan-y overscroll-x-none flex-col items-center overflow-x-hidden pb-28 pt-5 xl:ml-[260px] xl:items-stretch xl:pb-0">
+        <header className="radio-content flex items-center justify-end xl:w-full xl:max-w-[1280px]">
           <button
             type="button"
             onClick={() => setMenuOpen((current) => !current)}
@@ -238,7 +240,7 @@ const Radio = () => {
           </button>
         </header>
 
-        <section className="mx-auto grid w-full max-w-[430px] flex-1 items-center gap-6 py-3 xl:max-w-[1280px] xl:grid-cols-[minmax(0,1fr)_320px] xl:py-8">
+        <section className="radio-content grid flex-1 items-center gap-6 py-3 xl:w-full xl:max-w-[1280px] xl:grid-cols-[minmax(0,1fr)_320px] xl:py-8">
           <div className="relative isolate flex min-h-[calc(100dvh-8.5rem)] w-full flex-col items-center justify-start overflow-hidden rounded-[2rem] pt-0 text-center xl:min-h-[620px] xl:justify-center xl:pt-0">
             {visualizerActive && (
               <div
@@ -256,7 +258,12 @@ const Radio = () => {
               style={
                 {
                   "--radio-wave-volume": player.volume,
-                  "--radio-wave-scale": 1.02 + player.volume * 0.12,
+                  "--radio-wave-level": player.audioLevel,
+                  "--radio-wave-energy": Math.min(
+                    1,
+                    player.audioLevel * 0.82 + player.volume * 0.18,
+                  ),
+                  "--radio-wave-scale": 1.02 + player.audioLevel * 0.12,
                 } as CSSProperties
               }
             >
@@ -285,7 +292,7 @@ const Radio = () => {
               {artistName}
             </p>
 
-            <div className="relative mt-5 flex w-full max-w-[20rem] items-center gap-2 px-1 sm:max-w-xl sm:gap-3">
+            <div className="relative mt-5 flex w-full max-w-[360px] items-center gap-2 px-1 sm:max-w-xl sm:gap-3">
               <button
                 type="button"
                 onClick={() => player.setVolume(0)}
@@ -324,7 +331,7 @@ const Radio = () => {
               </button>
             </div>
 
-            <div className="relative mt-7 grid w-full max-w-[20rem] grid-cols-[5rem_1fr_5rem] items-center justify-items-center gap-0 sm:max-w-md sm:grid-cols-[6rem_1fr_6rem]">
+            <div className="relative mt-7 grid w-full max-w-[360px] grid-cols-[5rem_1fr_5rem] items-center justify-items-center gap-0 sm:max-w-md sm:grid-cols-[6rem_1fr_6rem]">
               <div className="flex w-full justify-center">
                 <button
                   type="button"
@@ -390,7 +397,7 @@ const Radio = () => {
             <button
               type="button"
               onClick={() => navigate("/programacion")}
-              className="group w-full rounded-2xl border border-gold/28 bg-black/42 p-3.5 text-left shadow-deep backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-gold/50 hover:bg-black/52 active:scale-[0.99] sm:p-4 xl:p-5"
+              className="group w-full rounded-2xl border border-gold/28 bg-black/42 p-3.5 text-left shadow-deep backdrop-blur-xl transition hover:border-gold/50 hover:bg-black/52 active:scale-[0.99] sm:p-4 xl:p-5"
             >
               <div className="mb-3 text-[11px] font-extrabold uppercase tracking-[0.22em] text-gold/90">
                 Sigue despues

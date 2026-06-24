@@ -12,6 +12,7 @@ export interface RadioPlayerContextValue {
   status: RadioStatus;
   streamUrl: string;
   volume: number;
+  audioLevel: number;
   isPlaying: boolean;
   play: () => Promise<void>;
   pause: () => void;

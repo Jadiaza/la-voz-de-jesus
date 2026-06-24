@@ -113,8 +113,15 @@
   html,
   body,
   #root {
+    width: 100%;
     max-width: 100%;
     overflow-x: hidden;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
   }
 
   * {
@@ -227,6 +234,58 @@
     position: relative;
   }
 
+  .radio-page {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100dvh;
+    overflow-x: clip;
+    touch-action: pan-y;
+    contain: paint;
+  }
+
+  .radio-content {
+    inline-size: min(100%, 430px);
+    width: min(100%, 430px);
+    max-width: 100%;
+    margin-inline: auto;
+    padding-inline: 24px;
+    box-sizing: border-box;
+  }
+
+  .radio-page *,
+  .radio-page *::before,
+  .radio-page *::after {
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .radio-content > * {
+    max-width: 100%;
+  }
+
+  .radio-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .radio-volume-control,
+  .radio-controls-row {
+    width: min(100%, 360px);
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  @media (min-width: 640px) {
+    .radio-volume-control {
+      width: min(100%, 36rem);
+    }
+
+    .radio-controls-row {
+      width: min(100%, 28rem);
+    }
+  }
+
   .live-pulse::before {
     content: '';
     position: absolute;
@@ -244,10 +303,15 @@
     pointer-events: none;
     border: 11px solid rgb(235 239 244 / 0.34);
     background: transparent;
+    transform: scale(calc(1 + (var(--radio-wave-energy, 0) * 0.026)));
+    transition:
+      border-radius 140ms linear,
+      transform 140ms linear,
+      opacity 140ms linear;
   }
 
   .radio-cover-orbit--playing {
-    animation: radio-cover-signal-pulse 1.15s ease-in-out infinite;
+    animation: radio-cover-signal-pulse 820ms linear infinite;
   }
 
   .radio-visualizer-bg {
@@ -373,6 +437,12 @@
     border: 2px solid hsl(var(--gold));
     background: #05070f;
   }
+
+  .app-splash-loader {
+    animation: app-splash-loader 1.05s ease-in-out infinite;
+    box-shadow: 0 0 18px rgb(245 132 35 / 0.58);
+  }
+
   .title-sacred {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 600;
@@ -398,45 +468,45 @@
 
 @keyframes radio-cover-signal-pulse {
   0%, 100% {
-    opacity: 0.7;
+    opacity: calc(0.52 + (var(--radio-wave-energy, 0) * 0.36));
     border-radius: 50%;
-    transform: scale(1);
+    transform: scale(calc(1 + (var(--radio-wave-energy, 0) * 0.012)));
   }
 
   12% {
-    opacity: 0.9;
-    border-radius: calc(50% - (var(--radio-wave-volume, 0.5) * 8%));
-    transform: scale(calc(1 + (var(--radio-wave-volume, 0.5) * 0.018)));
+    opacity: calc(0.62 + (var(--radio-wave-energy, 0) * 0.34));
+    border-radius: calc(50% - (var(--radio-wave-energy, 0) * 10%));
+    transform: scale(calc(1 + (var(--radio-wave-energy, 0) * 0.032)));
   }
 
   24% {
-    opacity: 0.76;
-    border-radius: calc(50% - (var(--radio-wave-volume, 0.5) * 3%));
-    transform: scale(calc(1 + (var(--radio-wave-volume, 0.5) * 0.006)));
+    opacity: calc(0.5 + (var(--radio-wave-energy, 0) * 0.28));
+    border-radius: calc(50% - (var(--radio-wave-energy, 0) * 4%));
+    transform: scale(calc(1 + (var(--radio-wave-energy, 0) * 0.012)));
   }
 
   39% {
-    opacity: 1;
-    border-radius: calc(50% - (var(--radio-wave-volume, 0.5) * 13%));
-    transform: scale(calc(1 + (var(--radio-wave-volume, 0.5) * 0.032)));
+    opacity: calc(0.66 + (var(--radio-wave-energy, 0) * 0.34));
+    border-radius: calc(50% - (var(--radio-wave-energy, 0) * 16%));
+    transform: scale(calc(1 + (var(--radio-wave-energy, 0) * 0.048)));
   }
 
   58% {
-    opacity: 0.82;
-    border-radius: calc(50% - (var(--radio-wave-volume, 0.5) * 5%));
-    transform: scale(calc(1 + (var(--radio-wave-volume, 0.5) * 0.012)));
+    opacity: calc(0.54 + (var(--radio-wave-energy, 0) * 0.28));
+    border-radius: calc(50% - (var(--radio-wave-energy, 0) * 7%));
+    transform: scale(calc(1 + (var(--radio-wave-energy, 0) * 0.018)));
   }
 
   73% {
-    opacity: 0.96;
-    border-radius: calc(50% - (var(--radio-wave-volume, 0.5) * 10%));
-    transform: scale(calc(1 + (var(--radio-wave-volume, 0.5) * 0.024)));
+    opacity: calc(0.6 + (var(--radio-wave-energy, 0) * 0.34));
+    border-radius: calc(50% - (var(--radio-wave-energy, 0) * 13%));
+    transform: scale(calc(1 + (var(--radio-wave-energy, 0) * 0.038)));
   }
 
   88% {
-    opacity: 0.74;
-    border-radius: calc(50% - (var(--radio-wave-volume, 0.5) * 2%));
-    transform: scale(calc(1 + (var(--radio-wave-volume, 0.5) * 0.004)));
+    opacity: calc(0.5 + (var(--radio-wave-energy, 0) * 0.24));
+    border-radius: calc(50% - (var(--radio-wave-energy, 0) * 3%));
+    transform: scale(calc(1 + (var(--radio-wave-energy, 0) * 0.008)));
   }
 }
 
@@ -487,6 +557,20 @@
     opacity: 0.45;
     color: #fff;
     box-shadow: 0 0 18px 2px rgb(255 255 255 / 0.24);
+  }
+}
+
+@keyframes app-splash-loader {
+  0% {
+    transform: translateX(-105%);
+  }
+
+  48% {
+    transform: translateX(35%);
+  }
+
+  100% {
+    transform: translateX(205%);
   }
 }
 

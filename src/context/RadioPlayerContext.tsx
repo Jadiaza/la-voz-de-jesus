@@ -20,6 +20,14 @@ const toTitleCase = (value: string) =>
 
 export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const analysisRef = useRef<{
+    analyser: AnalyserNode;
+    context: AudioContext;
+    data: Uint8Array;
+    source: MediaElementAudioSourceNode;
+  } | null>(null);
+  const analysisAudioRef = useRef<HTMLAudioElement | null>(null);
+  const levelRef = useRef(0);
   const [status, setStatus] = useState<RadioStatus>("idle");
   const [streamUrl, setStreamUrl] = useState(DEFAULT_APP_CONFIG.radio_stream_url);
   const [metadataUrl, setMetadataUrl] = useState(
@@ -38,6 +46,7 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [title, setTitle] = useState(DEFAULT_APP_CONFIG.radio_default_title);
   const [artworkUrl, setArtworkUrl] = useState("");
   const [volume, setVolumeState] = useState(0.5);
+  const [audioLevel, setAudioLevel] = useState(0);
 
   useEffect(() => {
     let mounted = true;
@@ -90,6 +99,16 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
     audio.addEventListener("pause", onPause);
 
     return () => {
+      if (analysisAudioRef.current === audio) {
+        analysisRef.current?.source.disconnect();
+        analysisRef.current?.analyser.disconnect();
+        void analysisRef.current?.context.close();
+        analysisRef.current = null;
+        analysisAudioRef.current = null;
+        levelRef.current = 0;
+        setAudioLevel(0);
+      }
+
       audio.pause();
       audio.removeEventListener("playing", onPlaying);
       audio.removeEventListener("waiting", onWaiting);
@@ -104,6 +123,89 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
     const audio = audioRef.current;
     if (audio) audio.volume = volume;
   }, [volume]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (status !== "playing" || !audio) {
+      levelRef.current = 0;
+      setAudioLevel(0);
+      return;
+    }
+
+    const AudioContextCtor =
+      window.AudioContext ??
+      (window as Window & { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+
+    if (!AudioContextCtor) return;
+
+    let frame = 0;
+    let cancelled = false;
+
+    try {
+      if (!analysisRef.current || analysisAudioRef.current !== audio) {
+        analysisRef.current?.source.disconnect();
+        analysisRef.current?.analyser.disconnect();
+        void analysisRef.current?.context.close();
+
+        const context = new AudioContextCtor();
+        const analyser = context.createAnalyser();
+        const source = context.createMediaElementSource(audio);
+
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.76;
+        source.connect(analyser);
+        analyser.connect(context.destination);
+
+        analysisRef.current = {
+          analyser,
+          context,
+          data: new Uint8Array(analyser.frequencyBinCount),
+          source,
+        };
+        analysisAudioRef.current = audio;
+      }
+
+      const analysis = analysisRef.current;
+      void analysis.context.resume();
+
+      const readLevel = () => {
+        if (cancelled) return;
+
+        analysis.analyser.getByteFrequencyData(analysis.data);
+
+        let sum = 0;
+        const usableBins = Math.min(48, analysis.data.length);
+
+        for (let index = 2; index < usableBins; index += 1) {
+          sum += analysis.data[index];
+        }
+
+        const average = sum / Math.max(1, usableBins - 2);
+        const rawLevel = Math.min(1, Math.max(0, average / 150));
+        const nextLevel = levelRef.current * 0.62 + rawLevel * 0.38;
+
+        if (Math.abs(nextLevel - levelRef.current) > 0.012) {
+          levelRef.current = nextLevel;
+          setAudioLevel(nextLevel);
+        }
+
+        frame = window.requestAnimationFrame(readLevel);
+      };
+
+      frame = window.requestAnimationFrame(readLevel);
+    } catch (error) {
+      console.warn("Audio analyser unavailable:", error);
+      levelRef.current = volume;
+      setAudioLevel(volume);
+    }
+
+    return () => {
+      cancelled = true;
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [status, volume]);
 
   useEffect(() => {
     if (!metadataUrl) return;
@@ -234,6 +336,7 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
       status,
       streamUrl,
       volume,
+      audioLevel,
       isPlaying: status === "playing" || status === "connecting",
       play,
       pause,
@@ -242,6 +345,7 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
     }),
     [
       artist,
+      audioLevel,
       artworkUrl,
       defaultSubtitle,
       defaultTitle,
