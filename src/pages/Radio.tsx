@@ -226,8 +226,8 @@ const Radio = () => {
         </nav>
       </aside>
 
-      <main className="relative z-10 flex min-h-screen flex-col px-4 pb-28 pt-5 xl:ml-[260px] xl:pb-0">
-        <header className="mx-auto flex w-full max-w-[1280px] items-center justify-end">
+      <main className="relative z-10 flex min-h-screen flex-col items-center px-3 pb-28 pt-5 sm:px-4 xl:ml-[260px] xl:items-stretch xl:pb-0">
+        <header className="mx-auto flex w-full max-w-[430px] items-center justify-end xl:max-w-[1280px]">
           <button
             type="button"
             onClick={() => setMenuOpen((current) => !current)}
@@ -238,8 +238,8 @@ const Radio = () => {
           </button>
         </header>
 
-        <section className="mx-auto grid w-full max-w-[1280px] flex-1 items-center gap-6 py-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:py-8">
-          <div className="relative isolate flex min-h-[calc(100svh-8.5rem)] flex-col items-center justify-start overflow-hidden rounded-[2rem] pt-0 text-center xl:min-h-[620px] xl:justify-center xl:pt-0">
+        <section className="mx-auto grid w-full max-w-[430px] flex-1 items-center gap-6 py-3 xl:max-w-[1280px] xl:grid-cols-[minmax(0,1fr)_320px] xl:py-8">
+          <div className="relative isolate flex min-h-[calc(100svh-8.5rem)] w-full flex-col items-center justify-start overflow-hidden rounded-[2rem] pt-0 text-center xl:min-h-[620px] xl:justify-center xl:pt-0">
             {visualizerActive && (
               <div
                 className={`radio-visualizer-bg ${
@@ -386,18 +386,18 @@ const Radio = () => {
             </div>
           </div>
 
-          <aside className="-mt-4 scroll-mt-5 space-y-4 pb-28 sm:-mt-2 xl:mt-0 xl:pb-0">
+          <aside className="-mt-4 w-full scroll-mt-5 space-y-4 pb-28 sm:-mt-2 xl:mt-0 xl:pb-0">
             <button
               type="button"
               onClick={() => navigate("/programacion")}
-              className="group w-full rounded-2xl border border-gold/28 bg-black/42 p-4 text-left shadow-deep backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-gold/50 hover:bg-black/52 active:scale-[0.99] xl:p-5"
+              className="group w-full rounded-2xl border border-gold/28 bg-black/42 p-3.5 text-left shadow-deep backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-gold/50 hover:bg-black/52 active:scale-[0.99] sm:p-4 xl:p-5"
             >
               <div className="mb-3 text-[11px] font-extrabold uppercase tracking-[0.22em] text-gold/90">
                 Sigue despues
               </div>
 
               <div className="flex min-h-[82px] items-center gap-3 xl:gap-4">
-                <div className="relative h-[74px] w-[74px] shrink-0 overflow-hidden rounded-full border border-gold/35 bg-black shadow-[0_14px_34px_rgba(0,0,0,0.55)] xl:h-20 xl:w-20">
+                <div className="relative h-[66px] w-[66px] shrink-0 overflow-hidden rounded-full border border-gold/35 bg-black shadow-[0_14px_34px_rgba(0,0,0,0.55)] sm:h-[74px] sm:w-[74px] xl:h-20 xl:w-20">
                   <img
                     src={activeNextProgramImage || monstranceImage}
                     alt=""
@@ -425,7 +425,7 @@ const Radio = () => {
                   </p>
                 </div>
 
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/45 text-gold transition group-hover:bg-gold/10 group-hover:text-gold-bright">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/45 text-gold transition group-hover:bg-gold/10 group-hover:text-gold-bright sm:h-10 sm:w-10">
                   <ChevronRight className="h-5 w-5" />
                 </span>
               </div>
