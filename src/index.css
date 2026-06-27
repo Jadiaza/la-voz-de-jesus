@@ -476,8 +476,8 @@
   }
 
   .radio-cover-orbit--playing .radio-cover-eq-bar {
-    animation: radio-cover-eq 1.05s ease-in-out infinite alternate;
-    animation-delay: calc(var(--bar-index) * -0.042s);
+    animation: radio-cover-eq 0.82s ease-in-out infinite alternate;
+    animation-delay: calc(var(--bar-index) * -0.036s);
   }
 
     @media (max-width: 640px) {
@@ -659,40 +659,40 @@
 
 @keyframes radio-cover-eq {
   0%, 100% {
-    opacity: calc(0.34 + (var(--radio-wave-energy, 0) * 0.2));
+    opacity: calc(0.28 + (var(--radio-wave-energy, 0) * 0.3));
     transform:
       rotate(calc(var(--bar-index) * 6deg))
       translateY(var(--bar-distance, -8.78rem))
-      scaleY(calc(0.46 + (var(--radio-wave-energy, 0) * var(--bar-gain, 0.7) * 0.42)));
+      scaleY(calc(0.34 + (var(--radio-wave-energy, 0) * var(--bar-gain, 0.7) * 0.58)));
   }
 
   50% {
-    opacity: calc(0.64 + (var(--radio-wave-energy, 0) * 0.28));
+    opacity: calc(0.52 + (var(--radio-wave-energy, 0) * 0.44));
     transform:
       rotate(calc(var(--bar-index) * 6deg))
       translateY(var(--bar-distance, -8.78rem))
-      scaleY(calc(0.92 + (var(--radio-wave-energy, 0) * var(--bar-gain, 0.7) * 0.72)));
-    box-shadow: 0 0 9px hsl(var(--gold-bright) / 0.4);
+      scaleY(calc(0.66 + (var(--radio-wave-energy, 0) * var(--bar-gain, 0.7) * 1.05)));
+    box-shadow: 0 0 calc(5px + (var(--radio-wave-energy, 0) * 8px)) hsl(var(--gold-bright) / 0.42);
   }
 }
 
 @media (max-width: 640px) {
   @keyframes radio-cover-eq {
     0%, 100% {
-      opacity: calc(0.34 + (var(--radio-wave-energy, 0) * 0.2));
+      opacity: calc(0.28 + (var(--radio-wave-energy, 0) * 0.3));
       transform:
         rotate(calc(var(--bar-index) * 6deg))
         translateY(calc(var(--bar-distance, -8.78rem) + 0.22rem))
-        scaleY(calc(0.46 + (var(--radio-wave-energy, 0) * var(--bar-gain, 0.7) * 0.42)));
+        scaleY(calc(0.34 + (var(--radio-wave-energy, 0) * var(--bar-gain, 0.7) * 0.58)));
     }
 
     50% {
-      opacity: calc(0.64 + (var(--radio-wave-energy, 0) * 0.28));
+      opacity: calc(0.52 + (var(--radio-wave-energy, 0) * 0.44));
       transform:
         rotate(calc(var(--bar-index) * 6deg))
         translateY(calc(var(--bar-distance, -8.78rem) + 0.22rem))
-        scaleY(calc(0.92 + (var(--radio-wave-energy, 0) * var(--bar-gain, 0.7) * 0.72)));
-      box-shadow: 0 0 9px hsl(var(--gold-bright) / 0.4);
+        scaleY(calc(0.66 + (var(--radio-wave-energy, 0) * var(--bar-gain, 0.7) * 1.05)));
+      box-shadow: 0 0 calc(5px + (var(--radio-wave-energy, 0) * 8px)) hsl(var(--gold-bright) / 0.42);
     }
   }
 }

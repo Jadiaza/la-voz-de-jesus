@@ -263,9 +263,9 @@ const Radio = () => {
                   "--radio-wave-level": player.audioLevel,
                   "--radio-wave-energy": Math.min(
                     1,
-                    player.audioLevel * 0.6 + player.volume * 0.12,
+                    player.audioLevel * 1.35 + player.volume * 0.04,
                   ),
-                  "--radio-wave-scale": 1.01 + player.audioLevel * 0.06,
+                  "--radio-wave-scale": 1.01 + player.audioLevel * 0.08,
                 } as CSSProperties
               }
             >
