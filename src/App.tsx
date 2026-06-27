@@ -10,6 +10,18 @@ import LecturasDelDia from "./pages/LecturasDelDia.tsx";
 import Programacion from "./pages/Programacion.tsx";
 import Radio from "./pages/Radio.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import {
+  AcercaDe,
+  Devociones,
+  Donar,
+  Eventos,
+  Formacion,
+  Liturgia,
+  Podcast,
+  PoliticaPrivacidad,
+  TerminosCondiciones,
+  Testimonios,
+} from "./pages/InfoPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +38,19 @@ const App = () => (
             <Route path="/contacto" element={<Contacto />} />
             <Route path="/lecturas-del-dia" element={<LecturasDelDia />} />
             <Route path="/programacion" element={<Programacion />} />
+            <Route path="/devociones" element={<Devociones />} />
+            <Route path="/liturgia" element={<Liturgia />} />
+            <Route path="/formacion" element={<Formacion />} />
+            <Route path="/testimonios" element={<Testimonios />} />
+            <Route path="/podcast" element={<Podcast />} />
+            <Route path="/eventos" element={<Eventos />} />
+            <Route path="/donar" element={<Donar />} />
+            <Route path="/acerca-de" element={<AcercaDe />} />
+            <Route path="/quienes-somos" element={<AcercaDe />} />
+            <Route path="/politica-de-privacidad" element={<PoliticaPrivacidad />} />
+            <Route path="/privacidad" element={<PoliticaPrivacidad />} />
+            <Route path="/terminos" element={<TerminosCondiciones />} />
+            <Route path="/terminos-y-condiciones" element={<TerminosCondiciones />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
