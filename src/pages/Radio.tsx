@@ -76,7 +76,22 @@ const sideLinks = [
   { label: "Contacto", to: "/contacto", icon: Mail },
 ];
 
-const custodyEqualizerBars = Array.from({ length: 60 }, (_, index) => index);
+const custodyEqualizerBars = Array.from({ length: 96 }, (_, index) => index);
+
+const getRayAudioLevel = (
+  index: number,
+  bands: { bass: number; mid: number; treble: number },
+) => {
+  if (index % 12 === 0) return bands.bass;
+  if (index % 4 === 0) return bands.mid;
+  return bands.treble;
+};
+
+const getRayGain = (index: number) => {
+  if (index % 12 === 0) return 1.18;
+  if (index % 4 === 0) return 0.86;
+  return 0.62;
+};
 
 const getDriveImageId = (url: string) => {
   const fileMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
@@ -279,14 +294,26 @@ const Radio = () => {
                 {custodyEqualizerBars.map((bar) => (
                   <span
                     key={bar}
-                    className="radio-cover-eq-bar"
+                    className={`radio-cover-eq-bar ${
+                      bar % 12 === 0 ? "radio-cover-eq-bar--bead" : ""
+                    }`}
                     style={
                       {
                         "--bar-index": bar,
-                        "--bar-distance": bar % 2 === 0 ? "-8.68rem" : "-8.42rem",
-                        "--bar-height": bar % 2 === 0 ? "21px" : "14px",
-                        "--bar-gain":
-                          bar % 3 === 0 ? 0.95 : bar % 3 === 1 ? 0.58 : 0.76,
+                        "--bar-distance":
+                          bar % 12 === 0
+                            ? "-8.78rem"
+                            : bar % 4 === 0
+                              ? "-8.58rem"
+                              : "-8.42rem",
+                        "--bar-height":
+                          bar % 12 === 0
+                            ? "29px"
+                            : bar % 4 === 0
+                              ? "22px"
+                              : "15px",
+                        "--bar-gain": getRayGain(bar),
+                        "--bar-level": getRayAudioLevel(bar, player.audioBands),
                       } as CSSProperties
                     }
                   />

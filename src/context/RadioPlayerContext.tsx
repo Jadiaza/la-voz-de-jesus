@@ -28,6 +28,7 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
   } | null>(null);
   const analysisAudioRef = useRef<HTMLAudioElement | null>(null);
   const levelRef = useRef(0);
+  const bandsRef = useRef({ bass: 0, mid: 0, treble: 0 });
   const [status, setStatus] = useState<RadioStatus>("idle");
   const [streamUrl, setStreamUrl] = useState(DEFAULT_APP_CONFIG.radio_stream_url);
   const [metadataUrl, setMetadataUrl] = useState(
@@ -47,6 +48,11 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [artworkUrl, setArtworkUrl] = useState("");
   const [volume, setVolumeState] = useState(0.5);
   const [audioLevel, setAudioLevel] = useState(0);
+  const [audioBands, setAudioBands] = useState({
+    bass: 0,
+    mid: 0,
+    treble: 0,
+  });
 
   useEffect(() => {
     let mounted = true;
@@ -106,7 +112,9 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
         analysisRef.current = null;
         analysisAudioRef.current = null;
         levelRef.current = 0;
+        bandsRef.current = { bass: 0, mid: 0, treble: 0 };
         setAudioLevel(0);
+        setAudioBands({ bass: 0, mid: 0, treble: 0 });
       }
 
       audio.pause();
@@ -129,7 +137,9 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
 
     if (status !== "playing" || !audio) {
       levelRef.current = 0;
+      bandsRef.current = { bass: 0, mid: 0, treble: 0 };
       setAudioLevel(0);
+      setAudioBands({ bass: 0, mid: 0, treble: 0 });
       return;
     }
 
@@ -153,7 +163,7 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
         const analyser = context.createAnalyser();
         const source = context.createMediaElementSource(audio);
 
-        analyser.fftSize = 256;
+        analyser.fftSize = 512;
         analyser.smoothingTimeConstant = 0.76;
         source.connect(analyser);
         analyser.connect(context.destination);
@@ -169,6 +179,19 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
 
       const analysis = analysisRef.current;
       void analysis.context.resume();
+
+      const averageBand = (from: number, to: number, divisor: number) => {
+        let sum = 0;
+        let count = 0;
+        const end = Math.min(to, analysis.data.length);
+
+        for (let index = from; index < end; index += 1) {
+          sum += analysis.data[index];
+          count += 1;
+        }
+
+        return Math.min(1, Math.max(0, sum / Math.max(1, count) / divisor));
+      };
 
       const readLevel = () => {
         if (cancelled) return;
@@ -191,6 +214,26 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
           setAudioLevel(nextLevel);
         }
 
+        const rawBands = {
+          bass: averageBand(2, 10, 145),
+          mid: averageBand(10, 42, 132),
+          treble: averageBand(42, 112, 118),
+        };
+        const nextBands = {
+          bass: bandsRef.current.bass * 0.64 + rawBands.bass * 0.36,
+          mid: bandsRef.current.mid * 0.68 + rawBands.mid * 0.32,
+          treble: bandsRef.current.treble * 0.72 + rawBands.treble * 0.28,
+        };
+        const shouldUpdateBands =
+          Math.abs(nextBands.bass - bandsRef.current.bass) > 0.012 ||
+          Math.abs(nextBands.mid - bandsRef.current.mid) > 0.012 ||
+          Math.abs(nextBands.treble - bandsRef.current.treble) > 0.012;
+
+        if (shouldUpdateBands) {
+          bandsRef.current = nextBands;
+          setAudioBands(nextBands);
+        }
+
         frame = window.requestAnimationFrame(readLevel);
       };
 
@@ -198,7 +241,9 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.warn("Audio analyser unavailable:", error);
       levelRef.current = volume;
+      bandsRef.current = { bass: volume, mid: volume, treble: volume };
       setAudioLevel(volume);
+      setAudioBands({ bass: volume, mid: volume, treble: volume });
     }
 
     return () => {
@@ -337,6 +382,7 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
       streamUrl,
       volume,
       audioLevel,
+      audioBands,
       isPlaying: status === "playing" || status === "connecting",
       play,
       pause,
@@ -345,6 +391,7 @@ export const RadioPlayerProvider = ({ children }: { children: ReactNode }) => {
     }),
     [
       artist,
+      audioBands,
       audioLevel,
       artworkUrl,
       defaultSubtitle,
