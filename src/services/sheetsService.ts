@@ -170,6 +170,9 @@ const CONFIGURACION_CSV_URL =
   (import.meta.env.VITE_CONFIGURACION_GENERAL_CSV_URL as string | undefined) ??
   DEFAULT_CONFIGURACION_CSV_URL;
 
+const CONFIG_API_URL =
+  (import.meta.env.VITE_APP_CONFIG_API_URL as string | undefined) ?? "/api/config";
+
 const clean = (value: unknown) =>
   typeof value === "string" || typeof value === "number"
     ? String(value).trim()
@@ -543,6 +546,12 @@ export async function getFrasesCatolicas() {
 }
 
 export async function getConfiguracion(): Promise<Record<string, string>> {
+  const apiConfig = await getConfiguracionFromApi();
+
+  if (Object.keys(apiConfig).length > 0) {
+    return apiConfig;
+  }
+
   if (!CONFIGURACION_CSV_URL) return {};
 
   const rows = await getCsvRows<Record<string, string>>(CONFIGURACION_CSV_URL);
@@ -563,6 +572,35 @@ export async function getConfiguracion(): Promise<Record<string, string>> {
     },
     {},
   );
+}
+
+async function getConfiguracionFromApi(): Promise<Record<string, string>> {
+  if (!CONFIG_API_URL) return {};
+
+  try {
+    const response = await fetch(CONFIG_API_URL, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) return {};
+
+    const data = (await response.json()) as Record<string, unknown>;
+
+    return Object.entries(data).reduce<Record<string, string>>(
+      (accumulator, [key, value]) => {
+        if (typeof value === "boolean") {
+          accumulator[key] = value ? "true" : "false";
+          return accumulator;
+        }
+
+        accumulator[key] = clean(value);
+        return accumulator;
+      },
+      {},
+    );
+  } catch {
+    return {};
+  }
 }
 
 export async function getConfigValue(key: string) {
