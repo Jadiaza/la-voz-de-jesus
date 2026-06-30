@@ -14,6 +14,8 @@ import { Link } from "react-router-dom";
 interface QuickAccessItem {
   image: string;
   label: string;
+  compactLabel?: string;
+  compactSubtitle?: string;
   to?: string;
 }
 
@@ -21,6 +23,8 @@ const items: QuickAccessItem[] = [
   {
     image: "/icons/evangelio.png",
     label: "Evangelio",
+    compactLabel: "Liturgia del dia",
+    compactSubtitle: "lecturas y santo",
     to: "/lecturas-del-dia",
   },
   {
@@ -89,12 +93,20 @@ export const QuickAccess = ({ compact = false }: { compact?: boolean }) => (
               className="pointer-events-none relative h-11 w-11 object-contain"
             />
 
-            <span
-              className={`pointer-events-none relative whitespace-pre-line text-center text-[10px] font-medium leading-tight text-foreground/85 ${
-                item.label === "Programacion" ? "-mt-1 text-[9.5px]" : ""
-              }`}
-            >
-              {item.label}
+            <span className="pointer-events-none relative flex min-h-[28px] flex-col items-center justify-start text-center leading-tight">
+              <span
+                className={`whitespace-pre-line text-[10px] font-semibold text-foreground/88 ${
+                  item.label === "Programacion" ? "-mt-1 text-[9.5px]" : ""
+                }`}
+              >
+                {compact ? item.compactLabel ?? item.label : item.label}
+              </span>
+
+              {compact && item.compactSubtitle ? (
+                <span className="mt-0.5 max-w-full truncate text-[8.5px] font-medium text-foreground/70">
+                  {item.compactSubtitle}
+                </span>
+              ) : null}
             </span>
           </>
         );
